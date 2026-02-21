@@ -1,0 +1,156 @@
+{
+  "identity": {
+    "persona": "E1 - The Anti-AI Designer",
+    "mission": "Create a trustworthy, organic, and data-driven Aggregator OS for carbon credit management.",
+    "theme_name": "Agro-Trust (Organic & Earthy)",
+    "mode": "light"
+  },
+  "typography": {
+    "headings": {
+      "font_family": "Manrope",
+      "weights": ["600", "700", "800"],
+      "letter_spacing": "tight",
+      "usage": "Use for all page titles, section headers, and metric values."
+    },
+    "body": {
+      "font_family": "Inter",
+      "weights": ["400", "500"],
+      "usage": "Use for table data, descriptions, and functional text."
+    },
+    "mono": {
+      "font_family": "JetBrains Mono",
+      "usage": "Use for transaction IDs, coordinates, and technical data."
+    }
+  },
+  "colors": {
+    "primary": {
+      "name": "Forest Canopy",
+      "value": "#1A4D2E",
+      "hover": "#143C24",
+      "foreground": "#FFFFFF",
+      "usage": "Primary buttons, active states, key branding elements."
+    },
+    "secondary": {
+      "name": "Terracotta Soil",
+      "value": "#B45309",
+      "hover": "#92400E",
+      "foreground": "#FFFFFF",
+      "usage": "Secondary actions, alerts requiring attention, emphasis."
+    },
+    "background": {
+      "page": "#FDFCF8",
+      "card": "#FFFFFF",
+      "sidebar": "#F7F6F3"
+    },
+    "text": {
+      "main": "#1F2937",
+      "muted": "#6B7280",
+      "inverted": "#FFFFFF"
+    },
+    "accent": {
+      "name": "Harvest Gold",
+      "value": "#F59E0B",
+      "usage": "Badges, success metrics, highlights."
+    },
+    "neutral": {
+      "border": "#E5E7EB",
+      "input": "#F3F4F6"
+    }
+  },
+  "visual_enhancers": {
+    "radius": {
+      "default": "0.5rem",
+      "card": "0.75rem",
+      "button": "0.5rem"
+    },
+    "shadows": {
+      "card": "0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06)",
+      "hover": "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)"
+    },
+    "textures": {
+      "noise": "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E\")"
+    }
+  },
+  "layout_strategy": {
+    "dashboard_grid": {
+      "type": "Bento Grid Mode B (High Density)",
+      "columns": "grid-cols-1 md:grid-cols-3 lg:grid-cols-4",
+      "gap": "gap-6",
+      "padding": "p-8"
+    },
+    "container": {
+      "max_width": "max-w-7xl",
+      "center": "mx-auto"
+    }
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-[#1A4D2E] text-white hover:bg-[#143C24] shadow-sm font-medium px-6 py-2.5 rounded-lg transition-all active:scale-95",
+      "secondary": "bg-white text-[#1A4D2E] border border-[#1A4D2E]/20 hover:bg-[#FDFCF8] hover:border-[#1A4D2E]/50 shadow-sm font-medium px-6 py-2.5 rounded-lg transition-all",
+      "ghost": "text-[#6B7280] hover:text-[#1F2937] hover:bg-gray-100/50 px-4 py-2 rounded-lg transition-all"
+    },
+    "cards": {
+      "default": "bg-white border border-gray-200/60 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-300 p-6",
+      "metric": "flex flex-col justify-between h-full bg-white border border-gray-100 rounded-xl p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)]"
+    },
+    "inputs": {
+      "default": "flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1A4D2E] focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+    },
+    "tables": {
+      "header": "bg-gray-50/50 text-xs font-semibold uppercase tracking-wider text-gray-500 border-b border-gray-200",
+      "row": "bg-white hover:bg-gray-50/50 transition-colors border-b border-gray-100 last:border-0"
+    }
+  },
+  "image_urls": {
+    "hero": [
+      {
+        "url": "https://images.pexels.com/photos/29803637/pexels-photo-29803637.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Hands planting seedlings - strong emotional connection to soil",
+        "usage": "Login Page Background / Hero Section"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1708592946248-c7ba5f036436?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNTl8MHwxfHNlYXJjaHwzfHxJbmRpYW4lMjBmYXJtZXJzJTIwcGxhbnRpbmclMjB0cmVlcyUyMHNhcGxpbmclMjBhZ3JpY3VsdHVyZSUyMHN1c3RhaW5hYmxlfGVufDB8fHx8MTc3MTY2ODg3N3ww&ixlib=rb-4.1.0&q=85",
+        "description": "Women kneeling next to tree - community aspect",
+        "usage": "Program Details / Community Section"
+      }
+    ],
+    "avatars": [
+      {
+        "url": "https://images.unsplash.com/photo-1609252285236-93406ce15b0d?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDB8MHwxfHNlYXJjaHwyfHxJbmRpYW4lMjBmYXJtZXIlMjBwb3J0cmFpdCUyMHJ1cmFsJTIwc21pbGluZ3xlbnwwfHx8fDE3NzE2Njg4Nzh8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Smiling man in orange/white shirt",
+        "usage": "Farmer Profile / Testimonial"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1724996854069-a7d335193ee2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA3MDB8MHwxfHNlYXJjaHwxfHxJbmRpYW4lMjBmYXJtZXIlMjBwb3J0cmFpdCUyMHJ1cmFsJTIwc21pbGluZ3xlbnwwfHx8fDE3NzE2Njg4Nzh8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Man in white hat",
+        "usage": "Farmer Profile"
+      }
+    ],
+    "evidence": [
+      {
+        "url": "https://images.pexels.com/photos/9268304/pexels-photo-9268304.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Woman planting rice - field context",
+        "usage": "Evidence Card Example"
+      }
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Install 'lucide-react' for icons immediately.",
+    "Install 'recharts' for data visualization.",
+    "Install 'sonner' for toast notifications.",
+    "Use 'Manrope' from Google Fonts via 'next/font' or standard import.",
+    "Do NOT use gradients for the main background. Use the off-white (#FDFCF8) to keep it clean and professional.",
+    "Ensure 'Estimated Units' label is prominent and distinct from 'Certified Credits'.",
+    "Use the Bento Grid layout for the main Dashboard Overview.",
+    "For the Claims Queue, use a split view: List on left, Map + Evidence Photo on right.",
+    "Use the 'Forest Canopy' Green (#1A4D2E) sparingly for primary actions to maintain hierarchy.",
+    "All interactive elements must have `data-testid` attributes."
+  ],
+  "UNIVERSAL_GUIDELINES": [
+    "Avoid generic 'AI slop' aesthetics (purple/teal gradients, centered text everywhere).",
+    "Use 2-3x more spacing than typical (p-6 or p-8 inside cards).",
+    "Micro-interactions are mandatory (hover states, subtle scales).",
+    "Never use full black (#000000). Use Dark Charcoal (#1F2937).",
+    "Use 'sonner' for all toast notifications."
+  ]
+}
