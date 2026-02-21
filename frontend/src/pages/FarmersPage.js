@@ -166,8 +166,14 @@ export default function FarmersPage() {
               <Input data-testid="farmer-name-input" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="Farmer name" className="mt-1" />
             </div>
             <div>
-              <Label>Phone *</Label>
-              <Input data-testid="farmer-phone-input" value={form.phone} onChange={e => setForm({...form, phone: e.target.value})} placeholder="+91XXXXXXXXXX" className="mt-1" />
+              <Label>Phone Number *</Label>
+              <PhoneInput 
+                data-testid="farmer-phone-input" 
+                value={form.phone} 
+                onChange={e => setForm({...form, phone: e.target.value})} 
+                placeholder="Enter phone number"
+                className="mt-1" 
+              />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
