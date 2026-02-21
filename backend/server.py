@@ -336,7 +336,7 @@ async def list_farmers(request: Request, program_id: Optional[str] = None):
 
 @api_router.get("/farmers/{farmer_id}", response_model=FarmerOut)
 async def get_farmer(farmer_id: str, request: Request):
-    user = await get_current_user(request)
+    _ = await get_current_user(request)  # Authentication check
     farmer = await db.farmers.find_one({"farmer_id": farmer_id}, {"_id": 0})
     if not farmer:
         raise HTTPException(status_code=404, detail="Farmer not found")
@@ -413,7 +413,7 @@ async def list_claims(request: Request, program_id: Optional[str] = None, status
 
 @api_router.put("/claims/{claim_id}/action")
 async def action_claim(claim_id: str, action: ClaimAction, request: Request):
-    user = await get_current_user(request)
+    _ = await get_current_user(request)  # Authentication check
     claim = await db.claims.find_one({"claim_id": claim_id}, {"_id": 0})
     if not claim:
         raise HTTPException(status_code=404, detail="Claim not found")
