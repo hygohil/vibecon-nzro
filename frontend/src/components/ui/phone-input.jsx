@@ -10,7 +10,7 @@ const countryCodes = [
   { code: "+86", country: "CN", flag: "🇨🇳", name: "China" },
   { code: "+81", country: "JP", flag: "🇯🇵", name: "Japan" },
   { code: "+82", country: "KR", flag: "🇰🇷", name: "South Korea" },
-  { code: "+49", code: "DE", flag: "🇩🇪", name: "Germany" },
+  { code: "+49", country: "DE", flag: "🇩🇪", name: "Germany" },
   { code: "+33", country: "FR", flag: "🇫🇷", name: "France" },
   { code: "+61", country: "AU", flag: "🇦🇺", name: "Australia" },
   { code: "+55", country: "BR", flag: "🇧🇷", name: "Brazil" },
