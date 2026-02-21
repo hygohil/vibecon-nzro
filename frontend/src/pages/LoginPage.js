@@ -1,12 +1,21 @@
 import React from 'react';
-import { TreePine } from 'lucide-react';
+import { TreePine, Eye } from 'lucide-react';
 import { Button } from '../components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 export default function LoginPage() {
+  const navigate = useNavigate();
+  
   const handleLogin = () => {
     // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH
     const redirectUrl = window.location.origin + '/dashboard';
     window.location.href = `https://auth.emergentagent.com/?redirect=${encodeURIComponent(redirectUrl)}`;
+  };
+
+  const handleDemoMode = () => {
+    localStorage.setItem('demoMode', 'true');
+    navigate('/dashboard');
+    window.location.reload();
   };
 
   return (
