@@ -63,6 +63,71 @@ Build an Aggregator OS + WhatsApp farmer onboarding + tree-plantation ledger + p
 - Field visit scheduling
 - Carbon price market data integration
 
+## Database Seeding & Testing
+
+### Quick Commands
+All seeding operations can be run from `/app/backend/`:
+
+```bash
+# Main CLI tool (recommended)
+python3 db_seed.py [command]
+
+# Available commands:
+python3 db_seed.py seed       # Seed database with test data
+python3 db_seed.py clear      # Clear all seed data
+python3 db_seed.py stats      # View database statistics
+python3 db_seed.py validate   # Validate data integrity
+python3 db_seed.py reset      # Clear + re-seed (fresh start)
+python3 db_seed.py help       # Show all options
+
+# Alternative: Direct scripts
+python3 seed_data.py          # Run seeder directly
+python3 view_db_stats.py      # View statistics
+python3 validate_seed_data.py # Validate data
+python3 clear_seed_data.py    # Clear data
+```
+
+### What Gets Seeded
+
+**4 Tree Plantation Programs:**
+- Coastal Green Belt Initiative (East Godavari) - Neem, Eucalyptus, Coconut
+- Krishna River Basin Afforestation (Krishna) - Bamboo, Banyan, Peepal
+- Guntur Dryland Agroforestry (Guntur) - Moringa, Neem, Mango
+- Urban Fringe Carbon Sequestration (Guntur) - Teak, Sandalwood
+
+**65 Farmers:** Realistic Indian names, villages, phone numbers (+91), UPI IDs
+
+**~220 Claims:** 60% approved, 15% pending, 25% rejected
+- Geo-tagged locations (Andhra Pradesh coordinates)
+- Sample photos (Unsplash URLs)
+- 12 tree species mix
+- Carbon calculations applied
+
+**60 Ledger Entries:** Auto-generated for farmers with approved claims
+
+### Test Data Summary
+- 🌳 ~12,000 approved trees per run
+- 🌍 ~84 tCO₂e estimated credits
+- 💵 ~₹530,000 total payout
+- 📍 30 villages across 5 districts
+- 🌱 12 tree species (fast/medium/slow growing)
+
+### Seeding Scripts Location
+`/app/backend/`:
+- `db_seed.py` - Main CLI tool (NEW)
+- `seed_data.py` - Core seeding logic
+- `view_db_stats.py` - Statistics viewer
+- `validate_seed_data.py` - Data integrity checker
+- `clear_seed_data.py` - Data cleanup
+- `SEEDING_README.md` - Full documentation
+- `SEEDING_SUMMARY.md` - Quick reference
+
+### When to Use
+- **Development:** Seed once at project start
+- **Testing:** Reset before major feature tests
+- **Demo:** Re-seed for clean demo data
+- **CI/CD:** Automate seeding in test environments
+
 ## Next Tasks
 1. Add Leaflet map view for claims geo-evidence
 2. Implement Legal & Rights Pack PDF export
