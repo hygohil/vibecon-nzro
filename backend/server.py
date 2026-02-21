@@ -237,6 +237,14 @@ async def auth_me(request: Request):
     user = await get_current_user(request)
     return user
 
+@api_router.get("/auth/demo-user")
+async def get_demo_user():
+    """Get demo user info for demo mode"""
+    demo_user = await db.users.find_one({"email": "demo@aggregatoros.com"}, {"_id": 0})
+    if not demo_user:
+        raise HTTPException(status_code=404, detail="Demo user not found. Please run seed script first.")
+    return demo_user
+
 @api_router.post("/auth/logout")
 async def auth_logout(request: Request, response: Response):
     session_token = request.cookies.get("session_token")
