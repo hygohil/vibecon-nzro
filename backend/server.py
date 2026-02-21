@@ -170,6 +170,17 @@ class WebhookStatusPayload(BaseModel):
 EMERGENT_AUTH_URL = "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data"
 
 async def get_current_user(request: Request) -> dict:
+    # Check for demo mode header or cookie
+    demo_mode = request.headers.get("X-Demo-Mode") == "true" or request.cookies.get("demo_mode") == "true"
+    
+    if demo_mode:
+        # Return demo user without authentication
+        demo_user = await db.users.find_one({"email": "demo@aggregatoros.com"}, {"_id": 0})
+        if demo_user:
+            return demo_user
+        raise HTTPException(status_code=404, detail="Demo user not found. Please run seed script.")
+    
+    # Normal authentication flow
     session_token = request.cookies.get("session_token")
     if not session_token:
         auth_header = request.headers.get("Authorization")
