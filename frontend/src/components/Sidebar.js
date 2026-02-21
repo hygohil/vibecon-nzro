@@ -1,16 +1,17 @@
 import React from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LayoutDashboard, TreePine, Users, ClipboardCheck, Wallet, FileDown, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, TreePine, Users, ClipboardCheck, Award, Wallet, FileDown, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '../components/ui/avatar';
 import { Button } from '../components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
 
 const navItems = [
   { to: '/dashboard', icon: LayoutDashboard, label: 'Dashboard' },
-  { to: '/programs', icon: TreePine, label: 'Programs' },
+  { to: '/projects', icon: TreePine, label: 'Projects' },
   { to: '/farmers', icon: Users, label: 'Farmers' },
-  { to: '/claims', icon: ClipboardCheck, label: 'Claims' },
+  { to: '/verification', icon: ClipboardCheck, label: 'Verification' },
+  { to: '/credits', icon: Award, label: 'Credits' },
   { to: '/ledger', icon: Wallet, label: 'Ledger' },
   { to: '/exports', icon: FileDown, label: 'Exports' },
 ];
