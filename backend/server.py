@@ -78,8 +78,6 @@ class ProgramOut(BaseModel):
 class FarmerCreate(BaseModel):
     name: str
     phone: str
-    village: str
-    district: str
     land_type: str = "owned"
     acres: Optional[float] = None
     upi_id: Optional[str] = None
@@ -90,8 +88,6 @@ class FarmerOut(BaseModel):
     farmer_id: str
     name: str
     phone: str
-    village: str
-    district: str
     land_type: str = "owned"
     acres: Optional[float] = None
     upi_id: Optional[str] = None
