@@ -452,7 +452,11 @@ async def seed_database(demo_mode=True):
     print("\n" + "="*60)
     print("✅ DATABASE SEEDING COMPLETE!")
     print("="*60)
-    print(f"👤 User: {test_user.get('email', 'N/A')}")
+    if demo_mode:
+        print(f"👤 Demo User: demo@aggregatoros.com")
+    else:
+        user_email = (await db.users.find_one({"user_id": user_id}, {"_id": 0, "email": 1})).get('email', 'N/A')
+        print(f"👤 User: {user_email}")
     print(f"📋 Programs: {len(created_programs)}")
     print(f"👨‍🌾 Farmers: {len(created_farmers)}")
     print(f"📝 Claims: {len(created_claims)}")
