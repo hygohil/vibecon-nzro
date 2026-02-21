@@ -233,7 +233,7 @@ export default function ProgramsPage() {
           {showDetail && (
             <div className="space-y-4 text-sm">
               <div className="grid grid-cols-2 gap-4">
-                <div><span className="text-[#6B7280]">Region:</span> <span className="font-medium">{showDetail.region}</span></div>
+                <div><span className="text-[#6B7280]">Region:</span> <span className="font-medium">{getStateLabel(showDetail.region)}</span></div>
                 <div><span className="text-[#6B7280]">Status:</span> <Badge className="bg-emerald-50 text-emerald-700 ml-1">{showDetail.status}</Badge></div>
                 <div><span className="text-[#6B7280]">Payout:</span> <span className="font-medium">₹{showDetail.payout_rate}/{showDetail.payout_rule_type === 'per_tree' ? 'tree' : 'tCO2e'}</span></div>
                 <div><span className="text-[#6B7280]">Survival:</span> <span className="font-medium">{(showDetail.survival_rate * 100).toFixed(0)}%</span></div>
