@@ -367,7 +367,7 @@ def calculate_credits(tree_count: int, species: str, survival_rate: float, disco
 
 @api_router.post("/claims", response_model=ClaimOut)
 async def create_claim(claim: ClaimCreate, request: Request):
-    user = await get_current_user(request)
+    _ = await get_current_user(request)  # Authentication check
     program = await db.programs.find_one({"program_id": claim.program_id}, {"_id": 0})
     if not program:
         raise HTTPException(status_code=404, detail="Program not found")
