@@ -317,7 +317,8 @@ async def seed_database(demo_mode=True):
             species = random.choice(list(TREE_SPECIES.keys()))
             tree_count = random.randint(20, 150)
             planted_date = (datetime.now(timezone.utc) - timedelta(days=random.randint(10, 120))).strftime("%Y-%m-%d")
-            lat, lng = random_coords(farmer["district"])
+            # Use program region for coordinates
+            lat, lng = random_coords(program["region"])
             status = random.choice(claim_statuses)
             
             # Calculate credits
