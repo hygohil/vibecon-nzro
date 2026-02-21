@@ -46,9 +46,10 @@ function DashboardLayout() {
         <div className="max-w-7xl mx-auto p-8">
           <Routes>
             <Route path="dashboard" element={<DashboardPage />} />
-            <Route path="programs" element={<ProgramsPage />} />
+            <Route path="projects" element={<ProjectsPage />} />
             <Route path="farmers" element={<FarmersPage />} />
-            <Route path="claims" element={<ClaimsPage />} />
+            <Route path="verification" element={<VerificationPage />} />
+            <Route path="credits" element={<CreditsPage />} />
             <Route path="ledger" element={<LedgerPage />} />
             <Route path="exports" element={<ExportPage />} />
             <Route path="*" element={<Navigate to="/dashboard" replace />} />
