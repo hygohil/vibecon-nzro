@@ -16,24 +16,24 @@ const API = `${BACKEND_URL}/api`;
 
 export default function FarmersPage() {
   const [farmers, setFarmers] = useState([]);
-  const [programs, setPrograms] = useState([]);
+  const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [search, setSearch] = useState('');
-  const [filterProgram, setFilterProgram] = useState('all');
+  const [filterProject, setFilterProject] = useState('all');
   const [form, setForm] = useState({
     name: '', phone: '',
-    land_type: 'owned', acres: '', upi_id: '', program_id: ''
+    land_type: 'owned', acres: '', upi_id: '', project_id: ''
   });
 
   const fetchData = async () => {
     try {
       const [fRes, pRes] = await Promise.all([
         fetch(`${API}/farmers`, { credentials: 'include' }),
-        fetch(`${API}/programs`, { credentials: 'include' }),
+        fetch(`${API}/projects`, { credentials: 'include' }),
       ]);
       if (fRes.ok) setFarmers(await fRes.json());
-      if (pRes.ok) setPrograms(await pRes.json());
+      if (pRes.ok) setProjects(await pRes.json());
     } catch {}
     setLoading(false);
   };
@@ -41,7 +41,7 @@ export default function FarmersPage() {
   useEffect(() => { fetchData(); }, []);
 
   const handleCreate = async () => {
-    if (!form.name || !form.phone || !form.program_id) {
+    if (!form.name || !form.phone || !form.project_id) {
       toast.error('Fill all required fields'); return;
     }
     try {
@@ -54,7 +54,7 @@ export default function FarmersPage() {
         toast.success('Farmer added');
         setShowCreate(false);
         fetchData();
-        setForm({ name: '', phone: '', village: '', district: '', land_type: 'owned', acres: '', upi_id: '', program_id: '' });
+        setForm({ name: '', phone: '', village: '', district: '', land_type: 'owned', acres: '', upi_id: '', project_id: '' });
       } else {
         const err = await res.json();
         toast.error(err.detail || 'Failed');
@@ -64,8 +64,8 @@ export default function FarmersPage() {
 
   const filtered = farmers.filter(f => {
     const matchSearch = !search || f.name.toLowerCase().includes(search.toLowerCase()) || f.phone.includes(search) || f.village.toLowerCase().includes(search.toLowerCase());
-    const matchProgram = filterProgram === 'all' || f.program_id === filterProgram;
-    return matchSearch && matchProgram;
+    const matchProject = filterProject === 'all' || f.project_id === filterProject;
+    return matchSearch && matchProject;
   });
 
   if (loading) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-[#1A4D2E] border-t-transparent rounded-full animate-spin" /></div>;
@@ -75,7 +75,7 @@ export default function FarmersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-[#1F2937] tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>Farmers</h1>
-          <p className="text-[#6B7280] mt-1">{farmers.length} farmers enrolled across {programs.length} programs</p>
+          <p className="text-[#6B7280] mt-1">{farmers.length} farmers enrolled across {projects.length} projects</p>
         </div>
         <Button onClick={() => setShowCreate(true)} data-testid="add-farmer-btn" className="bg-[#1A4D2E] text-white hover:bg-[#143C24] shadow-sm font-medium px-5 py-2.5 rounded-lg transition-all active:scale-95">
           <Plus className="w-4 h-4 mr-2" /> Add Farmer
@@ -88,13 +88,13 @@ export default function FarmersPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
           <Input data-testid="farmer-search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, phone, village..." className="pl-9" />
         </div>
-        <Select value={filterProgram} onValueChange={setFilterProgram}>
-          <SelectTrigger className="w-[200px]" data-testid="program-filter">
-            <SelectValue placeholder="Filter by program" />
+        <Select value={filterProject} onValueChange={setFilterProject}>
+          <SelectTrigger className="w-[200px]" data-testid="project-filter">
+            <SelectValue placeholder="Filter by project" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Programs</SelectItem>
-            {programs.map(p => <SelectItem key={p.program_id} value={p.program_id}>{p.name}</SelectItem>)}
+            <SelectItem value="all">All Projects</SelectItem>
+            {projects.map(p => <SelectItem key={p.project_id} value={p.project_id}>{p.name}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
@@ -106,7 +106,7 @@ export default function FarmersPage() {
             <TableHeader>
               <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Farmer</TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Program</TableHead>
+                <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Project</TableHead>
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Trees</TableHead>
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Est. Credits</TableHead>
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Payout</TableHead>
@@ -127,7 +127,7 @@ export default function FarmersPage() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <Badge variant="outline" className="text-[10px] border-[#1A4D2E]/20 text-[#1A4D2E]">{f.program_name || f.program_id}</Badge>
+                    <Badge variant="outline" className="text-[10px] border-[#1A4D2E]/20 text-[#1A4D2E]">{f.project_name || f.project_id}</Badge>
                   </TableCell>
                   <TableCell>
                     <span className="text-sm font-medium">{f.approved_trees}/{f.total_trees}</span>
@@ -190,11 +190,11 @@ export default function FarmersPage() {
               <Input data-testid="farmer-upi-input" value={form.upi_id} onChange={e => setForm({...form, upi_id: e.target.value})} placeholder="name@upi" className="mt-1" />
             </div>
             <div>
-              <Label>Program *</Label>
-              <Select value={form.program_id} onValueChange={v => setForm({...form, program_id: v})}>
-                <SelectTrigger className="mt-1" data-testid="farmer-program-select"><SelectValue placeholder="Select program" /></SelectTrigger>
+              <Label>Project *</Label>
+              <Select value={form.project_id} onValueChange={v => setForm({...form, project_id: v})}>
+                <SelectTrigger className="mt-1" data-testid="farmer-project-select"><SelectValue placeholder="Select project" /></SelectTrigger>
                 <SelectContent>
-                  {programs.map(p => <SelectItem key={p.program_id} value={p.program_id}>{p.name}</SelectItem>)}
+                  {projects.map(p => <SelectItem key={p.project_id} value={p.project_id}>{p.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

@@ -13,7 +13,7 @@ const exports = [
   {
     id: 'dossier',
     title: 'Project Dossier (PDF)',
-    description: 'Comprehensive project narrative for verifiers/buyers. Includes program details, geography, species, monitoring plan, credit methodology, risk controls, and summary stats.',
+    description: 'Comprehensive project narrative for verifiers/buyers. Includes project details, geography, species, monitoring plan, credit methodology, risk controls, and summary stats.',
     icon: FileText,
     endpoint: '/export/dossier-pdf',
     color: '#1A4D2E',
@@ -23,7 +23,7 @@ const exports = [
   {
     id: 'activity',
     title: 'Activity Data (CSV)',
-    description: 'One row per claim with farmer info, plot coordinates, species, tree counts, verification status, evidence URLs, and timestamps. The spreadsheet auditors want.',
+    description: 'One row per activity with farmer info, plot coordinates, species, tree counts, verification status, evidence URLs, and timestamps. The spreadsheet auditors want.',
     icon: Table2,
     endpoint: '/export/activity-csv',
     color: '#B45309',
@@ -33,7 +33,7 @@ const exports = [
   {
     id: 'evidence',
     title: 'Evidence Pack (JSON)',
-    description: 'Structured geo-evidence data for every claim: coordinates, photo URLs, farmer IDs, and verification status. Foundation for a data room.',
+    description: 'Structured geo-evidence data for every activity: coordinates, photo URLs, farmer IDs, and verification status. Foundation for a data room.',
     icon: FolderArchive,
     endpoint: '/export/evidence-json',
     color: '#059669',
@@ -43,7 +43,7 @@ const exports = [
   {
     id: 'calculation',
     title: 'Calculation Sheet (CSV)',
-    description: 'Transparent estimation math: per-species sequestration factors, survival rates, conservative discounts, formulas, and resulting tCO2e per claim.',
+    description: 'Transparent estimation math: per-species sequestration factors, survival rates, conservative discounts, formulas, and resulting tCO2e per activity.',
     icon: Calculator,
     endpoint: '/export/calculation-sheet',
     color: '#7C3AED',
@@ -53,7 +53,7 @@ const exports = [
   {
     id: 'audit',
     title: 'Audit Log (CSV)',
-    description: 'Complete audit trail: who approved/rejected what, when, with notes. Chain of custody for every claim action.',
+    description: 'Complete audit trail: who approved/rejected what, when, with notes. Chain of custody for every activity action.',
     icon: Shield,
     endpoint: '/export/audit-log',
     color: '#DC2626',
@@ -63,15 +63,15 @@ const exports = [
 ];
 
 export default function ExportPage() {
-  const [programs, setPrograms] = useState([]);
-  const [selectedProgram, setSelectedProgram] = useState('all');
+  const [projects, setProjects] = useState([]);
+  const [selectedProject, setSelectedProject] = useState('all');
   const [downloading, setDownloading] = useState(null);
 
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${API}/programs`, { credentials: 'include' });
-        if (res.ok) setPrograms(await res.json());
+        const res = await fetch(`${API}/projects`, { credentials: 'include' });
+        if (res.ok) setProjects(await res.json());
       } catch {}
     })();
   }, []);
@@ -79,7 +79,7 @@ export default function ExportPage() {
   const handleDownload = async (exp) => {
     setDownloading(exp.id);
     try {
-      const url = selectedProgram !== 'all' ? `${API}${exp.endpoint}?program_id=${selectedProgram}` : `${API}${exp.endpoint}`;
+      const url = selectedProject !== 'all' ? `${API}${exp.endpoint}?project_id=${selectedProject}` : `${API}${exp.endpoint}`;
       const res = await fetch(url, { credentials: 'include' });
       if (!res.ok) throw new Error('Export failed');
       const blob = await res.blob();
@@ -104,8 +104,8 @@ export default function ExportPage() {
         <p className="text-[#6B7280] mt-1">Generate MRV-ready evidence packs and project documentation</p>
       </div>
 
-      {/* Disclaimer */}
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3" data-testid="export-disclaimer">
+      {/* Disactivityer */}
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3" data-testid="export-disactivityer">
         <Leaf className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
         <div>
           <p className="text-sm font-medium text-amber-800">Estimated Units — Not Issued Credits</p>
@@ -113,16 +113,16 @@ export default function ExportPage() {
         </div>
       </div>
 
-      {/* Program Filter */}
+      {/* Project Filter */}
       <div className="flex items-center gap-3">
         <span className="text-sm text-[#6B7280]">Export for:</span>
-        <Select value={selectedProgram} onValueChange={setSelectedProgram}>
-          <SelectTrigger className="w-[260px]" data-testid="export-program-filter">
-            <SelectValue placeholder="Select program" />
+        <Select value={selectedProject} onValueChange={setSelectedProject}>
+          <SelectTrigger className="w-[260px]" data-testid="export-project-filter">
+            <SelectValue placeholder="Select project" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Programs</SelectItem>
-            {programs.map(p => <SelectItem key={p.program_id} value={p.program_id}>{p.name}</SelectItem>)}
+            <SelectItem value="all">All Projects</SelectItem>
+            {projects.map(p => <SelectItem key={p.project_id} value={p.project_id}>{p.name}</SelectItem>)}
           </SelectContent>
         </Select>
       </div>
