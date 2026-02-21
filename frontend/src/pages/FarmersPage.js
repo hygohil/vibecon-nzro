@@ -177,16 +177,6 @@ export default function FarmersPage() {
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label>Village *</Label>
-                <Input data-testid="farmer-village-input" value={form.village} onChange={e => setForm({...form, village: e.target.value})} className="mt-1" />
-              </div>
-              <div>
-                <Label>District *</Label>
-                <Input data-testid="farmer-district-input" value={form.district} onChange={e => setForm({...form, district: e.target.value})} className="mt-1" />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
                 <Label>Land Type</Label>
                 <Select value={form.land_type} onValueChange={v => setForm({...form, land_type: v})}>
                   <SelectTrigger className="mt-1" data-testid="land-type-select"><SelectValue /></SelectTrigger>
