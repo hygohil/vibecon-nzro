@@ -87,6 +87,25 @@ export default function LoginPage() {
             Continue with Google
           </Button>
 
+          <div className="relative my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-200"></div>
+            </div>
+            <div className="relative flex justify-center text-sm">
+              <span className="px-2 bg-[#FDFCF8] text-gray-500">Or</span>
+            </div>
+          </div>
+
+          <Button
+            onClick={handleDemoMode}
+            variant="outline"
+            data-testid="demo-mode-btn"
+            className="w-full border-2 border-amber-200 bg-amber-50 text-amber-900 hover:bg-amber-100 hover:border-amber-300 shadow-sm font-medium px-6 py-6 rounded-lg transition-all active:scale-[0.98] text-base flex items-center justify-center gap-3"
+          >
+            <Eye className="w-5 h-5" />
+            Try Demo Mode
+          </Button>
+
           <p className="mt-6 text-xs text-center text-[#6B7280]">
             By signing in, you agree to our terms of service and privacy policy.
           </p>
