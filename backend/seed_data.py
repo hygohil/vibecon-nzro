@@ -102,7 +102,7 @@ def random_coords(district):
     return round(lat, 6), round(lng, 6)
 
 
-async def seed_database():
+async def seed_database(demo_mode=True):
     """Main seeding function"""
     print("🌱 Starting database seeding...")
     
@@ -117,22 +117,48 @@ async def seed_database():
     # await db.claims.delete_many({})
     # await db.ledger.delete_many({})
     
-    # Get or create a test user
-    test_user = await db.users.find_one({"email": {"$exists": True}})
-    if not test_user:
-        print("⚠️  No user found in database. Creating a test user...")
-        test_user_id = f"user_{uuid.uuid4().hex[:12]}"
-        await db.users.insert_one({
-            "user_id": test_user_id,
-            "email": "test@aggregatoros.com",
-            "name": "Test Aggregator",
-            "picture": "",
-            "created_at": datetime.now(timezone.utc).isoformat()
-        })
-        test_user = await db.users.find_one({"user_id": test_user_id})
-    
-    user_id = test_user["user_id"]
-    print(f"👤 Using user: {test_user.get('email', 'N/A')} (ID: {user_id})")
+    # Create or get demo user
+    if demo_mode:
+        print("🎭 Demo Mode: Creating/using demo account...")
+        demo_user = await db.users.find_one({"email": "demo@aggregatoros.com"})
+        if not demo_user:
+            demo_user_id = "demo_user_permanent"
+            await db.users.insert_one({
+                "user_id": demo_user_id,
+                "email": "demo@aggregatoros.com",
+                "name": "Demo Account",
+                "picture": "",
+                "is_demo": True,
+                "created_at": datetime.now(timezone.utc).isoformat()
+            })
+            demo_user = await db.users.find_one({"user_id": demo_user_id})
+        else:
+            # Clear existing demo data
+            print("🗑️  Clearing existing demo account data...")
+            await db.programs.delete_many({"user_id": demo_user["user_id"]})
+            await db.farmers.delete_many({"program_id": {"$regex": "^demo_"}})
+            await db.claims.delete_many({"program_id": {"$regex": "^demo_"}})
+            await db.ledger.delete_many({"farmer_id": {"$regex": "^demo_"}})
+        
+        user_id = demo_user["user_id"]
+        print(f"👤 Using DEMO user: {demo_user.get('email', 'N/A')} (ID: {user_id})")
+    else:
+        # Get or create a test user
+        test_user = await db.users.find_one({"email": {"$exists": True}, "is_demo": {"$ne": True}})
+        if not test_user:
+            print("⚠️  No user found in database. Creating a test user...")
+            test_user_id = f"user_{uuid.uuid4().hex[:12]}"
+            await db.users.insert_one({
+                "user_id": test_user_id,
+                "email": "test@aggregatoros.com",
+                "name": "Test Aggregator",
+                "picture": "",
+                "created_at": datetime.now(timezone.utc).isoformat()
+            })
+            test_user = await db.users.find_one({"user_id": test_user_id})
+        
+        user_id = test_user["user_id"]
+        print(f"👤 Using user: {test_user.get('email', 'N/A')} (ID: {user_id})")
     
     # ═══════════════════════════════════════════════════════════
     # 1. CREATE PROGRAMS
@@ -218,7 +244,8 @@ async def seed_database():
     
     created_programs = []
     for prog_data in programs_data:
-        prog_id = f"prog_{uuid.uuid4().hex[:10]}"
+        # Use demo_ prefix if demo mode
+        prog_id = f"demo_prog_{uuid.uuid4().hex[:10]}" if user_id == "demo_user_permanent" else f"prog_{uuid.uuid4().hex[:10]}"
         doc = {
             "program_id": prog_id,
             "user_id": user_id,
@@ -245,7 +272,8 @@ async def seed_database():
         district = program["region"]
         
         for i in range(num_farmers):
-            farmer_id = f"farmer_{uuid.uuid4().hex[:10]}"
+            # Use demo_ prefix if demo mode
+            farmer_id = f"demo_farmer_{uuid.uuid4().hex[:10]}" if user_id == "demo_user_permanent" else f"farmer_{uuid.uuid4().hex[:10]}"
             name = random.choice(INDIAN_FIRST_NAMES) + " " + random.choice(["Kumar", "Rao", "Reddy", "Naidu", "Sharma"])
             
             farmer_doc = {
@@ -288,7 +316,8 @@ async def seed_database():
         program = next(p for p in created_programs if p["program_id"] == farmer["program_id"])
         
         for i in range(num_claims):
-            claim_id = f"claim_{uuid.uuid4().hex[:10]}"
+            # Use demo_ prefix if demo mode
+            claim_id = f"demo_claim_{uuid.uuid4().hex[:10]}" if farmer["farmer_id"].startswith("demo_") else f"claim_{uuid.uuid4().hex[:10]}"
             species = random.choice(list(TREE_SPECIES.keys()))
             tree_count = random.randint(20, 150)
             planted_date = (datetime.now(timezone.utc) - timedelta(days=random.randint(10, 120))).strftime("%Y-%m-%d")
@@ -381,8 +410,10 @@ async def seed_database():
             if random.random() > 0.5:  # 50% chance of partial payment
                 paid_amount = round(total_payout * random.uniform(0.3, 0.9), 2)
             
+            # Use demo_ prefix if demo mode
+            ledger_id = f"demo_ledger_{uuid.uuid4().hex[:10]}" if farmer["farmer_id"].startswith("demo_") else f"ledger_{uuid.uuid4().hex[:10]}"
             ledger_doc = {
-                "ledger_id": f"ledger_{uuid.uuid4().hex[:10]}",
+                "ledger_id": ledger_id,
                 "farmer_id": farmer["farmer_id"],
                 "farmer_name": farmer["name"],
                 "farmer_phone": farmer["phone"],
