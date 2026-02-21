@@ -111,9 +111,9 @@ async def seed_database(demo_mode=True):
     # Clear existing data (optional - comment out if you want to keep existing data)
     print("🗑️  Clearing existing seed data...")
     # We'll only clear non-auth collections
-    # await db.programs.delete_many({})
+    # await db.projects.delete_many({})
     # await db.farmers.delete_many({})
-    # await db.claims.delete_many({})
+    # await db.activities.delete_many({})
     # await db.ledger.delete_many({})
     
     # Create or get demo user
@@ -134,9 +134,9 @@ async def seed_database(demo_mode=True):
         else:
             # Clear existing demo data
             print("🗑️  Clearing existing demo account data...")
-            await db.programs.delete_many({"user_id": demo_user["user_id"]})
-            await db.farmers.delete_many({"program_id": {"$regex": "^demo_"}})
-            await db.claims.delete_many({"program_id": {"$regex": "^demo_"}})
+            await db.projects.delete_many({"user_id": demo_user["user_id"]})
+            await db.farmers.delete_many({"project_id": {"$regex": "^demo_"}})
+            await db.activities.delete_many({"project_id": {"$regex": "^demo_"}})
             await db.ledger.delete_many({"farmer_id": {"$regex": "^demo_"}})
         
         user_id = demo_user["user_id"]
@@ -246,15 +246,15 @@ async def seed_database(demo_mode=True):
         # Use demo_ prefix if demo mode
         prog_id = f"demo_prog_{uuid.uuid4().hex[:10]}" if user_id == "demo_user_permanent" else f"prog_{uuid.uuid4().hex[:10]}"
         doc = {
-            "program_id": prog_id,
+            "project_id": prog_id,
             "user_id": user_id,
             "status": "active",
             "farmers_count": 0,
-            "claims_count": 0,
+            "activities_count": 0,
             "created_at": (datetime.now(timezone.utc) - timedelta(days=random.randint(60, 180))).isoformat(),
             **prog_data
         }
-        await db.programs.insert_one(doc)
+        await db.projects.insert_one(doc)
         created_programs.append(doc)
         print(f"  ✓ Created: {prog_data['name']}")
     
@@ -281,8 +281,8 @@ async def seed_database(demo_mode=True):
                 "land_type": random.choice(["owned", "owned", "leased", "community"]),
                 "acres": round(random.uniform(1.0, 10.0), 2),
                 "upi_id": random_upi(),
-                "program_id": program["program_id"],
-                "program_name": program["name"],
+                "project_id": program["project_id"],
+                "project_name": program["name"],
                 "status": "active",
                 "total_trees": 0,
                 "approved_trees": 0,
@@ -309,11 +309,11 @@ async def seed_database(demo_mode=True):
     for farmer in created_farmers:
         # Each farmer makes 2-5 claims
         num_claims = random.randint(2, 5)
-        program = next(p for p in created_programs if p["program_id"] == farmer["program_id"])
+        program = next(p for p in created_programs if p["project_id"] == farmer["project_id"])
         
         for i in range(num_claims):
             # Use demo_ prefix if demo mode
-            claim_id = f"demo_claim_{uuid.uuid4().hex[:10]}" if farmer["farmer_id"].startswith("demo_") else f"claim_{uuid.uuid4().hex[:10]}"
+            activity_id = f"demo_claim_{uuid.uuid4().hex[:10]}" if farmer["farmer_id"].startswith("demo_") else f"claim_{uuid.uuid4().hex[:10]}"
             species = random.choice(list(TREE_SPECIES.keys()))
             tree_count = random.randint(20, 150)
             planted_date = (datetime.now(timezone.utc) - timedelta(days=random.randint(10, 120))).strftime("%Y-%m-%d")
@@ -333,12 +333,12 @@ async def seed_database(demo_mode=True):
                 est_payout = round(est_credits * program["payout_rate"], 2)
             
             claim_doc = {
-                "claim_id": claim_id,
+                "activity_id": activity_id,
                 "farmer_id": farmer["farmer_id"],
                 "farmer_name": farmer["name"],
                 "farmer_phone": farmer["phone"],
-                "program_id": program["program_id"],
-                "program_name": program["name"],
+                "project_id": program["project_id"],
+                "project_name": program["name"],
                 "tree_count": tree_count,
                 "species": species,
                 "planted_date": planted_date,
@@ -360,7 +360,7 @@ async def seed_database(demo_mode=True):
                 "approved_at": (datetime.now(timezone.utc) - timedelta(days=random.randint(1, 50))).isoformat() if status == "approved" else None
             }
             
-            await db.claims.insert_one(claim_doc)
+            await db.activities.insert_one(claim_doc)
             created_claims.append(claim_doc)
             
             # Update farmer totals
@@ -381,7 +381,7 @@ async def seed_database(demo_mode=True):
                     }
                 )
     
-    print(f"  📊 Total claims created: {len(created_claims)}")
+    print(f"  📊 Total activities created: {len(created_claims)}")
     print(f"  ✅ Approved: {len([c for c in created_claims if c['status'] == 'approved'])}")
     print(f"  ⏳ Pending: {len([c for c in created_claims if c['status'] == 'pending'])}")
     print(f"  ❌ Rejected: {len([c for c in created_claims if c['status'] == 'rejected'])}")
@@ -414,7 +414,7 @@ async def seed_database(demo_mode=True):
                 "farmer_name": farmer["name"],
                 "farmer_phone": farmer["phone"],
                 "upi_id": farmer.get("upi_id", ""),
-                "program_id": farmer["program_id"],
+                "project_id": farmer["project_id"],
                 "approved_trees_total": total_trees,
                 "approved_credits_total": round(total_credits, 4),
                 "payable_amount": round(total_payout, 2),
@@ -433,12 +433,12 @@ async def seed_database(demo_mode=True):
     print("\n🔄 Updating program statistics...")
     
     for program in created_programs:
-        farmers_count = await db.farmers.count_documents({"program_id": program["program_id"]})
-        claims_count = await db.claims.count_documents({"program_id": program["program_id"]})
+        farmers_count = await db.farmers.count_documents({"project_id": program["project_id"]})
+        activities_count = await db.activities.count_documents({"project_id": program["project_id"]})
         
-        await db.programs.update_one(
-            {"program_id": program["program_id"]},
-            {"$set": {"farmers_count": farmers_count, "claims_count": claims_count}}
+        await db.projects.update_one(
+            {"project_id": program["project_id"]},
+            {"$set": {"farmers_count": farmers_count, "activities_count": activities_count}}
         )
     
     # ═══════════════════════════════════════════════════════════
@@ -452,9 +452,9 @@ async def seed_database(demo_mode=True):
     else:
         user_email = (await db.users.find_one({"user_id": user_id}, {"_id": 0, "email": 1})).get('email', 'N/A')
         print(f"👤 User: {user_email}")
-    print(f"📋 Programs: {len(created_programs)}")
+    print(f"📋 Projects: {len(created_programs)}")
     print(f"👨‍🌾 Farmers: {len(created_farmers)}")
-    print(f"📝 Claims: {len(created_claims)}")
+    print(f"📝 Activities: {len(created_claims)}")
     print(f"💰 Ledger entries: {ledger_count}")
     
     # Calculate totals
