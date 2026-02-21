@@ -36,14 +36,14 @@ export default function DashboardPage() {
   }
 
   const metrics = [
-    { label: 'Programs', value: stats?.total_programs || 0, icon: TreePine, color: '#1A4D2E', bg: 'bg-emerald-50' },
+    { label: 'Projects', value: stats?.total_projects || 0, icon: TreePine, color: '#1A4D2E', bg: 'bg-emerald-50' },
     { label: 'Farmers Enrolled', value: stats?.total_farmers || 0, icon: Users, color: '#B45309', bg: 'bg-amber-50' },
-    { label: 'Total Claims', value: stats?.total_claims || 0, icon: ClipboardCheck, color: '#1A4D2E', bg: 'bg-emerald-50' },
-    { label: 'Pending Review', value: stats?.pending_claims || 0, icon: Clock, color: '#D97706', bg: 'bg-amber-50' },
+    { label: 'Total Activities', value: stats?.total_activities || 0, icon: ClipboardCheck, color: '#1A4D2E', bg: 'bg-emerald-50' },
+    { label: 'Pending Verification', value: stats?.pending_verification || 0, icon: Clock, color: '#D97706', bg: 'bg-amber-50' },
     { label: 'Approved Trees', value: stats?.approved_trees || 0, icon: Leaf, color: '#059669', bg: 'bg-green-50' },
     { label: 'Est. tCO2e', value: stats?.estimated_credits?.toFixed(2) || '0.00', icon: TrendingUp, color: '#1A4D2E', bg: 'bg-emerald-50', subtitle: 'Estimated units' },
     { label: 'Total Payout', value: `₹${(stats?.total_payout || 0).toLocaleString('en-IN')}`, icon: Wallet, color: '#B45309', bg: 'bg-amber-50' },
-    { label: 'Approved Claims', value: stats?.approved_claims || 0, icon: ArrowUpRight, color: '#059669', bg: 'bg-green-50' },
+    { label: 'Verified Activities', value: stats?.verified_activities || 0, icon: ArrowUpRight, color: '#059669', bg: 'bg-green-50' },
   ];
 
   return (
