@@ -482,7 +482,7 @@ class VanaLedgerAPITester:
 
 def main():
     # Configuration
-    BACKEND_URL = "https://aggregator-claims.preview.emergentagent.com"
+    BACKEND_URL = "https://farmer-aggregator-os.preview.emergentagent.com"
     SESSION_TOKEN = "test_session_1771669663710"  # Using the token we just created
     
     # Initialize tester
