@@ -9,18 +9,39 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   const checkAuth = useCallback(async () => {
-    try {
-      const res = await fetch(`${API}/auth/me`, { credentials: 'include' });
-      if (res.ok) {
-        const data = await res.json();
-        setUser(data);
-      } else {
+    // Check if demo mode is active
+    const demoMode = localStorage.getItem('demoMode') === 'true';
+    
+    if (demoMode) {
+      // Fetch demo user
+      try {
+        const res = await fetch(`${API}/auth/demo-user`);
+        if (res.ok) {
+          const demoUser = await res.json();
+          setUser(demoUser);
+        } else {
+          setUser(null);
+        }
+      } catch {
         setUser(null);
+      } finally {
+        setLoading(false);
       }
-    } catch {
-      setUser(null);
-    } finally {
-      setLoading(false);
+    } else {
+      // Normal auth flow
+      try {
+        const res = await fetch(`${API}/auth/me`, { credentials: 'include' });
+        if (res.ok) {
+          const data = await res.json();
+          setUser(data);
+        } else {
+          setUser(null);
+        }
+      } catch {
+        setUser(null);
+      } finally {
+        setLoading(false);
+      }
     }
   }, []);
 
