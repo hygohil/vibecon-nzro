@@ -13,7 +13,7 @@ python3 db_seed.py seed
 python3 db_seed.py stats
 
 # 3. Open the app and login
-# Visit: https://your-app.preview.emergentagent.com
+# Visit: https://repo-watcher-1.preview.emergentagent.com
 ```
 
 **That's it!** You now have:
@@ -182,7 +182,7 @@ CORS_ORIGINS=*
 
 ### Frontend (.env)
 ```
-REACT_APP_BACKEND_URL=https://your-app.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://repo-watcher-1.preview.emergentagent.com
 ```
 
 **⚠️ Important:** Never hardcode these in code!
