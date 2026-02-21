@@ -1,4 +1,4 @@
-from fastapi import FastAPI, APIRouter, HTTPException, Request, Response, Query, UploadFile, File
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response
 from fastapi.responses import StreamingResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -9,10 +9,9 @@ import uuid
 import io
 import csv
 import json
-import zipfile
 import httpx
 from pathlib import Path
-from pydantic import BaseModel, Field, ConfigDict
+from pydantic import BaseModel, ConfigDict
 from typing import List, Optional
 from datetime import datetime, timezone, timedelta
 from fpdf import FPDF
@@ -726,8 +725,8 @@ async def export_dossier_pdf(request: Request, program_id: Optional[str] = None)
     pdf.set_font("Helvetica", "B", 14)
     pdf.cell(0, 10, "5. Monitoring Plan", ln=True)
     pdf.set_font("Helvetica", "", 11)
-    pdf.cell(0, 7, f"  Survival check at: 30, 90, 365 days post-planting", ln=True)
-    pdf.cell(0, 7, f"  Evidence: Geo-tagged photos + location pin", ln=True)
+    pdf.cell(0, 7, "  Survival check at: 30, 90, 365 days post-planting", ln=True)
+    pdf.cell(0, 7, "  Evidence: Geo-tagged photos + location pin", ln=True)
     pdf.cell(0, 7, f"  Monitoring frequency: {prog.get('monitoring_frequency_days', 90)} days", ln=True)
     pdf.ln(5)
     pdf.set_font("Helvetica", "B", 14)

@@ -4,7 +4,6 @@ Creates sample programs, farmers, claims, and ledger entries for testing
 """
 import asyncio
 import os
-import sys
 from pathlib import Path
 from datetime import datetime, timezone, timedelta
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -269,7 +268,6 @@ async def seed_database(demo_mode=True):
     
     for idx, program in enumerate(created_programs):
         num_farmers = farmers_per_program[idx]
-        district = program["region"]
         
         for i in range(num_farmers):
             # Use demo_ prefix if demo mode
@@ -449,7 +447,7 @@ async def seed_database(demo_mode=True):
     print("✅ DATABASE SEEDING COMPLETE!")
     print("="*60)
     if demo_mode:
-        print(f"👤 Demo User: demo@aggregatoros.com")
+        print("👤 Demo User: demo@aggregatoros.com")
     else:
         user_email = (await db.users.find_one({"user_id": user_id}, {"_id": 0, "email": 1})).get('email', 'N/A')
         print(f"👤 User: {user_email}")
