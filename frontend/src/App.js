@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { Toaster } from 'sonner';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { DemoModeProvider } from './contexts/DemoModeContext';
 import AuthCallback from './components/AuthCallback';
 import Sidebar from './components/Sidebar';
+import DemoModeBanner from './components/DemoModeBanner';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import ProgramsPage from './pages/ProgramsPage';
@@ -37,6 +39,7 @@ function DashboardLayout() {
 
   return (
     <div className="min-h-screen bg-[#FDFCF8]">
+      <DemoModeBanner />
       <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
       <main className={`transition-all duration-300 ${collapsed ? 'ml-[68px]' : 'ml-[240px]'}`}>
         <div className="max-w-7xl mx-auto p-8">
@@ -82,13 +85,15 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <AppRouter />
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: { fontFamily: 'Inter, sans-serif', fontSize: '14px' },
-          }}
-        />
+        <DemoModeProvider>
+          <AppRouter />
+          <Toaster
+            position="top-right"
+            toastOptions={{
+              style: { fontFamily: 'Inter, sans-serif', fontSize: '14px' },
+            }}
+          />
+        </DemoModeProvider>
       </AuthProvider>
     </BrowserRouter>
   );
