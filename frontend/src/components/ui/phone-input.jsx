@@ -61,6 +61,7 @@ export function PhoneInput({ value = "", onChange, className, placeholder = "Ent
     if (onChange && fullNumber !== value) {
       onChange({ target: { value: fullNumber } })
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [countryCode, number])
 
   // Update local state when value prop changes externally
