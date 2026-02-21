@@ -22,7 +22,7 @@ export default function FarmersPage() {
   const [search, setSearch] = useState('');
   const [filterProgram, setFilterProgram] = useState('all');
   const [form, setForm] = useState({
-    name: '', phone: '', village: '', district: '',
+    name: '', phone: '',
     land_type: 'owned', acres: '', upi_id: '', program_id: ''
   });
 
@@ -41,7 +41,7 @@ export default function FarmersPage() {
   useEffect(() => { fetchData(); }, []);
 
   const handleCreate = async () => {
-    if (!form.name || !form.phone || !form.village || !form.district || !form.program_id) {
+    if (!form.name || !form.phone || !form.program_id) {
       toast.error('Fill all required fields'); return;
     }
     try {
