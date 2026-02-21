@@ -14,6 +14,7 @@ export default function LoginPage() {
 
   const handleDemoMode = () => {
     localStorage.setItem('demoMode', 'true');
+    document.cookie = 'demo_mode=true; path=/; max-age=86400'; // 24 hours
     navigate('/dashboard');
     window.location.reload();
   };
