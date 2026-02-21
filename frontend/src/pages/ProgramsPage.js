@@ -113,7 +113,7 @@ export default function ProgramsPage() {
                     <div>
                       <h3 className="font-semibold text-[#1F2937] text-sm" style={{ fontFamily: 'Manrope, sans-serif' }}>{p.name}</h3>
                       <div className="flex items-center gap-1 text-xs text-[#6B7280]">
-                        <MapPin className="w-3 h-3" /> {p.region}
+                        <MapPin className="w-3 h-3" /> {getStateLabel(p.region)}
                       </div>
                     </div>
                   </div>
