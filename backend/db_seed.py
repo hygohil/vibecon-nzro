@@ -41,9 +41,9 @@ async def run_seed(args):
     if args.programs or args.farmers or args.claims:
         print(f"   Custom settings: Programs={args.programs or 4}, Farmers={args.farmers or 'auto'}, Claims={args.claims or 'auto'}")
     
-    # Import and run seed_data
+    # Import and run seed_data with demo mode enabled
     from seed_data import seed_database
-    await seed_database()
+    await seed_database(demo_mode=True)
 
 async def run_clear(args):
     """Clear all seed data"""
@@ -71,7 +71,7 @@ async def run_reset(args):
     
     await clear_seed_data()
     print("\n")
-    await seed_database()
+    await seed_database(demo_mode=True)
 
 def show_help():
     """Show help message"""
