@@ -160,8 +160,17 @@ export default function ProgramsPage() {
               <Input data-testid="program-name-input" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="e.g., Saurashtra Tree Revival" className="mt-1" />
             </div>
             <div>
-              <Label>Region *</Label>
-              <Input data-testid="program-region-input" value={form.region} onChange={e => setForm({...form, region: e.target.value})} placeholder="e.g., Gujarat, Saurashtra" className="mt-1" />
+              <Label>Region / State *</Label>
+              <Combobox
+                data-testid="program-region-input"
+                value={form.region}
+                onValueChange={v => setForm({...form, region: v})}
+                options={INDIAN_STATES}
+                placeholder="Select state or region..."
+                searchPlaceholder="Search Indian states..."
+                emptyText="No state found."
+                className="mt-1"
+              />
             </div>
             <div>
               <Label>Description</Label>
