@@ -8,7 +8,14 @@ const API = `${BACKEND_URL}/api`;
 export function DemoModeProvider({ children }) {
   const [demoMode, setDemoMode] = useState(() => {
     // Check localStorage for saved preference
-    return localStorage.getItem('demoMode') === 'true';
+    const isDemoMode = localStorage.getItem('demoMode') === 'true';
+    
+    // Set cookie if demo mode is active
+    if (isDemoMode) {
+      document.cookie = 'demo_mode=true; path=/; max-age=86400';
+    }
+    
+    return isDemoMode;
   });
   const [demoUser, setDemoUser] = useState(null);
 
@@ -38,10 +45,15 @@ export function DemoModeProvider({ children }) {
     setDemoMode(newMode);
     localStorage.setItem('demoMode', newMode.toString());
     
-    // Reload page to fetch fresh data
+    // Set/remove demo mode cookie for API requests
     if (newMode) {
-      window.location.reload();
+      document.cookie = 'demo_mode=true; path=/; max-age=86400'; // 24 hours
+    } else {
+      document.cookie = 'demo_mode=; path=/; max-age=0'; // Delete cookie
     }
+    
+    // Reload page to fetch fresh data
+    window.location.reload();
   };
 
   const value = {
