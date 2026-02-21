@@ -21,7 +21,7 @@ const statusColors = {
   needs_info: 'bg-blue-50 text-blue-700 border-blue-200',
 };
 
-export default function ActivitiesPage() {
+export default function VerificationPage() {
   const [activities, setActivities] = useState([]);
   const [projects, setProjects] = useState([]);
   const [farmers, setFarmers] = useState([]);
