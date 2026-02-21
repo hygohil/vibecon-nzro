@@ -106,7 +106,6 @@ export default function FarmersPage() {
             <TableHeader>
               <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Farmer</TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Location</TableHead>
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Program</TableHead>
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Trees</TableHead>
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Est. Credits</TableHead>
@@ -116,7 +115,7 @@ export default function FarmersPage() {
             </TableHeader>
             <TableBody>
               {filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={7} className="text-center py-8 text-[#6B7280]">No farmers found</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center py-8 text-[#6B7280]">No farmers found</TableCell></TableRow>
               ) : filtered.map((f) => (
                 <TableRow key={f.farmer_id} className="hover:bg-gray-50/50 transition-colors" data-testid={`farmer-row-${f.farmer_id}`}>
                   <TableCell>
@@ -125,11 +124,6 @@ export default function FarmersPage() {
                       <div className="flex items-center gap-1 text-xs text-[#6B7280]">
                         <Phone className="w-3 h-3" /> {f.phone}
                       </div>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-sm text-[#6B7280]">
-                      <MapPin className="w-3 h-3" /> {f.village}, {f.district}
                     </div>
                   </TableCell>
                   <TableCell>
