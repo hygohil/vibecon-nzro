@@ -29,6 +29,8 @@ export default function FarmersPage() {
   const [submitting, setSubmitting] = useState(false);
   const [phoneError, setPhoneError] = useState('');
   const [showBulkUpload, setShowBulkUpload] = useState(false);
+  const [deleteTarget, setDeleteTarget] = useState(null); // {farmer_id, name, total_trees}
+  const [deleting, setDeleting] = useState(false);
   const [form, setForm] = useState({
     name: '', phone: '',
     land_type: 'owned', acres: '', upi_id: '', project_id: ''
