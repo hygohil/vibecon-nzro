@@ -593,7 +593,10 @@ async def bulk_validate_csv(
     rows = []
     phone_seen = {}  # track intra-CSV duplicates
 
-    for i, raw_row in enumerate(reader, start=2):  # row 2 = first data row (row 1 = header)
+    for i, raw_row in enumerate(reader, start=2):
+        # Skip completely empty rows (trailing newlines)
+        if not any((v or "").strip() for v in raw_row.values()):
+            continue
         normalized = {k.strip().lower(): (v or "").strip() for k, v in raw_row.items()}
         phone_10 = _normalize_phone(normalized.get("phone", ""))
         errors = _validate_bulk_row(normalized, i)
