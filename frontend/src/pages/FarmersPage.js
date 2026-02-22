@@ -209,7 +209,7 @@ export default function FarmersPage() {
             </TableHeader>
             <TableBody>
               {filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={6} className="text-center py-8 text-[#6B7280]">No farmers found</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center py-8 text-[#6B7280]">No farmers found</TableCell></TableRow>
               ) : filtered.map((f) => (
                 <TableRow key={f.farmer_id} className="hover:bg-gray-50/50 transition-colors" data-testid={`farmer-row-${f.farmer_id}`}>
                   <TableCell>
