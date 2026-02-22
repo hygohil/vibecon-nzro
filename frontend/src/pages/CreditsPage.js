@@ -403,6 +403,37 @@ export default function CreditsPage() {
         )}
       </div>
 
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={open => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent data-testid="delete-credit-dialog">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Issuance</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete this issuance of{' '}
+              <strong>{deleteTarget?.credits_issued} tCO₂e</strong> for{' '}
+              <strong>{deleteTarget?.project_name}</strong>?
+              {deleteTarget?.status === 'sold' && (
+                <span className="block mt-2 text-amber-600 font-medium">
+                  This credit is marked as <strong>Sold</strong>. Deleting it will also remove all associated benefit share records.
+                </span>
+              )}
+              <span className="block mt-1 text-red-600 text-xs">This action cannot be undone.</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              data-testid="confirm-delete-credit-btn"
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Deleting...</> : 'Delete Issuance'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Log Issuance Dialog */}
       <Dialog open={showLogDialog} onOpenChange={setShowLogDialog}>
         <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
