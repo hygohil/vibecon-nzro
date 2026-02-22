@@ -324,19 +324,54 @@ export default function ProjectsPage() {
               <div className="grid grid-cols-2 gap-4">
                 <div><span className="text-[#6B7280]">Region:</span> <span className="font-medium">{getStateLabel(showDetail.region)}</span></div>
                 <div><span className="text-[#6B7280]">Status:</span> <Badge className="bg-emerald-50 text-emerald-700 ml-1">{showDetail.status}</Badge></div>
-                <div><span className="text-[#6B7280]">Payout:</span> <span className="font-medium">₹{showDetail.payout_rate}/{showDetail.payout_rule_type === 'per_tree' ? 'tree' : 'tCO2e'}</span></div>
-                <div><span className="text-[#6B7280]">Survival:</span> <span className="font-medium">{(showDetail.survival_rate * 100).toFixed(0)}%</span></div>
-                <div><span className="text-[#6B7280]">Discount:</span> <span className="font-medium">{(showDetail.conservative_discount * 100).toFixed(0)}%</span></div>
-                <div><span className="text-[#6B7280]">Monitoring:</span> <span className="font-medium">Every {showDetail.monitoring_frequency_days}d</span></div>
+                <div><span className="text-[#6B7280]">Payout:</span> <span className="font-medium">₹{showDetail.payout_rate}/tCO₂e</span></div>
+                <div><span className="text-[#6B7280]">Farmers:</span> <span className="font-medium">{showDetail.farmers_count || 0}</span></div>
               </div>
-              <div>
-                <p className="text-[#6B7280] mb-1">Species List:</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {showDetail.species_list?.map((s, i) => (
-                    <Badge key={i} variant="outline" className="text-[10px]">{s.name} ({s.growth_rate})</Badge>
-                  ))}
+
+              {showDetail.description && (
+                <div>
+                  <p className="text-[#6B7280] mb-1">Description:</p>
+                  <p className="text-gray-700">{showDetail.description}</p>
+                </div>
+              )}
+
+              <div className="border-t pt-4">
+                <div className="flex items-center gap-2 mb-3">
+                  <Lock className="w-4 h-4 text-gray-500" />
+                  <h3 className="text-sm font-semibold text-gray-700">Conservative MRV Settings</h3>
+                </div>
+                <div className="grid grid-cols-2 gap-3 text-xs">
+                  <div className="bg-gray-50 p-2 rounded">
+                    <span className="text-gray-600">Survival Rate:</span> <span className="font-medium">{(showDetail.survival_rate * 100).toFixed(0)}%</span>
+                  </div>
+                  <div className="bg-gray-50 p-2 rounded">
+                    <span className="text-gray-600">Discount:</span> <span className="font-medium">{(showDetail.conservative_discount * 100).toFixed(0)}%</span>
+                  </div>
+                  <div className="bg-gray-50 p-2 rounded">
+                    <span className="text-gray-600">Max Trees/Acre:</span> <span className="font-medium">{showDetail.max_trees_per_acre}</span>
+                  </div>
+                  <div className="bg-gray-50 p-2 rounded">
+                    <span className="text-gray-600">Cooldown:</span> <span className="font-medium">{showDetail.cooldown_days}d</span>
+                  </div>
+                  <div className="bg-gray-50 p-2 rounded col-span-2">
+                    <span className="text-gray-600">Monitoring:</span> <span className="font-medium">Every {showDetail.monitoring_frequency_days} days</span>
+                  </div>
                 </div>
               </div>
+
+              <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+                <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-amber-800">
+                  <strong>Note:</strong> All values are estimates until verified. Issuance depends on monitoring evidence and verification.
+                </p>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button onClick={() => setShowDetail(null)} className="bg-[#1A4D2E] text-white hover:bg-[#143C24]">Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
               <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
                 <p className="text-xs text-amber-700 font-medium">Fraud Controls</p>
                 <p className="text-xs text-amber-600 mt-1">Max {showDetail.max_trees_per_acre} trees/acre | {showDetail.cooldown_days}d cooldown | Proofs: {showDetail.required_proofs?.join(', ')}</p>
