@@ -54,7 +54,7 @@ export default function FarmersPage() {
         toast.success('Farmer added');
         setShowCreate(false);
         fetchData();
-        setForm({ name: '', phone: '', village: '', district: '', land_type: 'owned', acres: '', upi_id: '', project_id: '' });
+        setForm({ name: '', phone: '', land_type: 'owned', acres: '', upi_id: '', project_id: '' });
       } else {
         const err = await res.json();
         toast.error(err.detail || 'Failed');
