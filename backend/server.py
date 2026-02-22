@@ -1142,10 +1142,12 @@ async def update_credit(credit_id: str, updates: dict, request: Request):
 @api_router.delete("/credits/{credit_id}")
 async def delete_credit(credit_id: str, request: Request):
     user = await get_current_user(request)
-    result = await db.credits.delete_one({"credit_id": credit_id, "user_id": user["user_id"]})
-    if result.deleted_count == 0:
+    credit = await db.credits.find_one({"credit_id": credit_id, "user_id": user["user_id"]}, {"_id": 0, "status": 1, "credits_issued": 1})
+    if not credit:
         raise HTTPException(status_code=404, detail="Credit not found")
-    return {"message": "Credit deleted"}
+    await db.credits.delete_one({"credit_id": credit_id})
+    await db.benefit_shares.delete_many({"credit_id": credit_id})
+    return {"deleted": True, "credit_id": credit_id, "status": credit.get("status"), "credits_issued": credit.get("credits_issued")}
 
 # ─── WhatsApp Webhook Endpoints ───
 
