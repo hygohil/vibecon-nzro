@@ -250,7 +250,7 @@ export default function FarmersPage() {
         <div className="bg-amber-50 border-t border-amber-200 px-6 py-3">
           <p className="text-xs text-amber-800 flex items-start gap-2">
             <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
-            <span><strong>Estimates only.</strong> Actual issuance and payout depend on monitoring, verification, and program rules.</span>
+            <span><strong>Estimates only.</strong> Actual issuance and payout depend on monitoring, verification, and project rules.</span>
           </p>
         </div>
       </Card>
