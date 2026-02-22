@@ -235,6 +235,16 @@ export default function FarmersPage() {
                   <TableCell>
                     <span className="text-xs text-[#6B7280]">{f.land_type}{f.acres ? ` (${Number(f.acres).toFixed(2)} ac)` : ''}</span>
                   </TableCell>
+                  <TableCell>
+                    <button
+                      onClick={() => setDeleteTarget({ farmer_id: f.farmer_id, name: f.name, total_trees: f.total_trees || 0 })}
+                      data-testid={`delete-farmer-${f.farmer_id}`}
+                      className="p-1.5 rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                      title="Delete farmer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>
