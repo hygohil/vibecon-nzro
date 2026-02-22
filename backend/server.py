@@ -490,6 +490,7 @@ async def verify_activity(activity_id: str, action: VerificationAction, request:
                 "farmer_phone": farmer.get("phone", ""),
                 "upi_id": farmer.get("upi_id", ""),
                 "project_id": activity["project_id"],
+                "project_name": activity.get("project_name", ""),
                 "approved_trees_total": activity["tree_count"],
                 "approved_credits_total": activity["estimated_credits"],
                 "payable_amount": activity["estimated_payout"],
