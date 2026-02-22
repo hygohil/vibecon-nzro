@@ -29,6 +29,9 @@ export default function ProjectsPage() {
   const [loading, setLoading] = useState(true);
   const [showCreate, setShowCreate] = useState(false);
   const [showDetail, setShowDetail] = useState(null);
+  const [editTarget, setEditTarget] = useState(null);
+  const [editForm, setEditForm] = useState({ name: '', description: '', payout_rate: 500 });
+  const [editSubmitting, setEditSubmitting] = useState(false);
   const [form, setForm] = useState({
     name: '',
     region: '',
