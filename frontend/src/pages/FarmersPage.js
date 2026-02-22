@@ -39,9 +39,9 @@ export default function FarmersPage() {
   const fetchData = async () => {
     try {
       const [fRes, pRes, countRes] = await Promise.all([
-        fetch(`${API}/farmers?page=${page}&page_size=${pageSize}`, { credentials: 'include' }),
-        fetch(`${API}/projects`, { credentials: 'include' }),
-        fetch(`${API}/farmers/count/total`, { credentials: 'include' }),
+        fetch(`${API}/farmers?page=${page}&page_size=${pageSize}`, { credentials: 'include', cache: 'no-store' }),
+        fetch(`${API}/projects`, { credentials: 'include', cache: 'no-store' }),
+        fetch(`${API}/farmers/count/total`, { credentials: 'include', cache: 'no-store' }),
       ]);
       if (fRes.ok) setFarmers(await fRes.json());
       if (pRes.ok) setProjects(await pRes.json());
