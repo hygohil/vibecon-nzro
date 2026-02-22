@@ -146,7 +146,7 @@ export default function ProjectsPage() {
                   </div>
                   <div className="text-center p-2 bg-gray-50 rounded-lg">
                     <p className="text-lg font-bold text-[#059669]" style={{ fontFamily: 'Manrope, sans-serif' }}>₹{p.payout_rate}</p>
-                    <p className="text-[10px] text-[#6B7280]">{p.payout_rule_type === 'per_tree' ? '/tree' : '/tCO2e'}</p>
+                    <p className="text-[10px] text-[#6B7280]">/tCO₂e</p>
                   </div>
                 </div>
                 <div className="flex gap-2">
