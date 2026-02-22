@@ -514,6 +514,252 @@ async def check_phone_uniqueness(body: dict, request: Request):
         return {"exists": True, "message": "This mobile number is already registered"}
     return {"exists": False}
 
+
+# ─── Bulk Farmer Onboarding ───────────────────────────────────────────────────
+
+def _normalize_phone(raw: str) -> str:
+    """Return the 10-digit national number, stripping +91 if present."""
+    s = raw.strip().replace(" ", "")
+    if s.startswith("+91"):
+        s = s[3:]
+    return s.replace("-", "").replace("(", "").replace(")", "")
+
+def _validate_bulk_row(row: dict, row_num: int) -> list[str]:
+    errors = []
+    name = (row.get("name") or "").strip()
+    phone = _normalize_phone(row.get("phone") or "")
+    land_type = (row.get("land_type") or "").strip().lower()
+    acres_raw = (row.get("acres") or "").strip()
+
+    if not name:
+        errors.append("name is required")
+    elif len(name) > 100:
+        errors.append("name must be ≤ 100 characters")
+
+    if not phone:
+        errors.append("phone is required")
+    elif not phone.isdigit():
+        errors.append("phone must contain digits only")
+    elif len(phone) != 10:
+        errors.append(f"phone must be 10 digits (got {len(phone)})")
+    elif phone[0] not in "6789":
+        errors.append("phone must start with 6, 7, 8, or 9")
+
+    if land_type not in ("owned", "leased"):
+        errors.append("land_type must be 'owned' or 'leased'")
+
+    if acres_raw:
+        try:
+            acres = float(acres_raw)
+            if acres <= 0:
+                errors.append("acres must be a positive number")
+        except ValueError:
+            errors.append(f"acres must be a number (got '{acres_raw}')")
+
+    return errors
+
+
+@api_router.post("/farmers/bulk/validate")
+async def bulk_validate_farmers(
+    request: Request,
+    file: "UploadFile" = "File(...)",
+    project_id: str = "Form(...)"
+):
+    from fastapi import UploadFile, File, Form
+    raise HTTPException(status_code=500, detail="Use multipart form — see below")
+
+
+# Override with proper signature using the imports available
+from fastapi import UploadFile, File, Form
+
+@api_router.post("/farmers/bulk/validate-csv")
+async def bulk_validate_csv(
+    request: Request,
+    file: UploadFile = File(...),
+    project_id: str = Form(...)
+):
+    """
+    Step 1: Parse CSV + validate all rows. No DB writes.
+    Returns per-row validation results + phone duplicate check.
+    """
+    user = await get_current_user(request)
+
+    # Validate project belongs to user
+    project = await db.projects.find_one({"project_id": project_id, "user_id": user["user_id"]}, {"_id": 0})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    # Read CSV
+    content = await file.read()
+    try:
+        text = content.decode("utf-8-sig")  # handle BOM
+    except UnicodeDecodeError:
+        text = content.decode("latin-1")
+
+    reader = csv.DictReader(io.StringIO(text))
+    required_headers = {"name", "phone", "land_type"}
+    actual_headers = set(h.strip().lower() for h in (reader.fieldnames or []))
+    missing = required_headers - actual_headers
+    if missing:
+        raise HTTPException(status_code=400, detail=f"CSV missing required columns: {', '.join(sorted(missing))}")
+
+    rows = []
+    phone_seen = {}  # track intra-CSV duplicates
+
+    for i, raw_row in enumerate(reader, start=2):  # row 2 = first data row (row 1 = header)
+        normalized = {k.strip().lower(): (v or "").strip() for k, v in raw_row.items()}
+        phone_10 = _normalize_phone(normalized.get("phone", ""))
+        errors = _validate_bulk_row(normalized, i)
+
+        # Intra-CSV duplicate check
+        if phone_10 and phone_10.isdigit() and len(phone_10) == 10:
+            if phone_10 in phone_seen:
+                errors.append(f"Duplicate phone in CSV (already on row {phone_seen[phone_10]})")
+            else:
+                phone_seen[phone_10] = i
+
+        rows.append({
+            "row": i,
+            "name": normalized.get("name", ""),
+            "phone": phone_10,
+            "phone_raw": normalized.get("phone", ""),
+            "land_type": normalized.get("land_type", "").lower(),
+            "acres": normalized.get("acres", ""),
+            "upi_id": normalized.get("upi_id", ""),
+            "errors": errors,
+        })
+
+    if not rows:
+        raise HTTPException(status_code=400, detail="CSV file is empty (no data rows)")
+
+    # Batch DB duplicate check for valid phones
+    valid_phones = [r["phone"] for r in rows if not r["errors"] and r["phone"]]
+    if valid_phones:
+        existing_docs = await db.farmers.find({"phone": {"$in": valid_phones}}, {"_id": 0, "phone": 1, "name": 1}).to_list(10000)
+        existing_map = {d["phone"]: d["name"] for d in existing_docs}
+        for r in rows:
+            if r["phone"] in existing_map:
+                r["errors"].append(f"Phone already registered to '{existing_map[r['phone']]}'")
+
+    # Final valid/error split
+    valid_rows = [r for r in rows if not r["errors"]]
+    error_rows = [r for r in rows if r["errors"]]
+
+    return {
+        "project_id": project_id,
+        "project_name": project["name"],
+        "total_rows": len(rows),
+        "valid_count": len(valid_rows),
+        "error_count": len(error_rows),
+        "rows": rows,
+    }
+
+
+@api_router.post("/farmers/bulk/onboard")
+async def bulk_onboard_farmers(body: dict, request: Request):
+    """
+    Step 2: Synchronously onboard all validated rows.
+    Accepts {project_id, rows: [{name, phone, land_type, acres, upi_id}]}
+    """
+    user = await get_current_user(request)
+    project_id = body.get("project_id")
+    rows = body.get("rows", [])
+
+    if not project_id or not rows:
+        raise HTTPException(status_code=400, detail="project_id and rows are required")
+
+    project = await db.projects.find_one({"project_id": project_id, "user_id": user["user_id"]}, {"_id": 0})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+
+    successes = []
+    errors = []
+
+    for r in rows:
+        row_num = r.get("row", "?")
+        phone = _normalize_phone(str(r.get("phone", "")))
+        name = (r.get("name") or "").strip()
+        land_type = (r.get("land_type") or "owned").strip().lower()
+        acres_raw = r.get("acres", "")
+        upi_id = (r.get("upi_id") or "").strip()
+
+        try:
+            acres = float(acres_raw) if acres_raw else None
+        except (ValueError, TypeError):
+            acres = None
+
+        # Re-validate (defense against bypasses)
+        re_errors = _validate_bulk_row({
+            "name": name, "phone": phone, "land_type": land_type,
+            "acres": str(acres) if acres else "", "upi_id": upi_id
+        }, row_num)
+        if re_errors:
+            errors.append({"row": row_num, "name": name, "phone": phone, "reason": "; ".join(re_errors)})
+            continue
+
+        # Final uniqueness check
+        existing = await db.farmers.find_one({"phone": phone}, {"_id": 0, "name": 1})
+        if existing:
+            errors.append({"row": row_num, "name": name, "phone": phone, "reason": f"Phone already registered to '{existing['name']}'"})
+            continue
+
+        doc = {
+            "farmer_id": f"farmer_{uuid.uuid4().hex[:10]}",
+            "name": name,
+            "phone": phone,
+            "land_type": land_type,
+            "acres": acres,
+            "upi_id": upi_id,
+            "project_id": project_id,
+            "project_name": project["name"],
+            "status": "active",
+            "total_trees": 0,
+            "approved_trees": 0,
+            "estimated_credits": 0.0,
+            "total_payout": 0.0,
+            "created_at": datetime.now(timezone.utc).isoformat(),
+        }
+        await db.farmers.insert_one(doc)
+        successes.append({"row": row_num, "name": name, "phone": phone, "farmer_id": doc["farmer_id"]})
+
+    return {
+        "project_id": project_id,
+        "project_name": project["name"],
+        "success_count": len(successes),
+        "error_count": len(errors),
+        "successes": successes,
+        "errors": errors,
+    }
+
+
+@api_router.get("/farmers/bulk/template")
+async def download_bulk_template(request: Request):
+    """Return a demo CSV template with sample Indian farmer data."""
+    _ = await get_current_user(request)
+    output = io.StringIO()
+    writer = csv.writer(output)
+    writer.writerow(["name", "phone", "land_type", "acres", "upi_id"])
+    sample_rows = [
+        ["Venkatesh Reddy",      "9876543210", "owned",  "3.5",  "venkatesh10@gpay"],
+        ["Saraswathi Devi",      "8765432109", "owned",  "2.0",  "saraswathi22@paytm"],
+        ["Ramakrishna Naidu",    "7654321098", "leased", "5.0",  "rama45@phonepe"],
+        ["Anjaneyulu Prasad",    "9123456780", "owned",  "1.5",  "anju99@ybl"],
+        ["Padmavathi Reddy",     "8234567891", "leased", "4.0",  "padma11@oksbi"],
+        ["Nageswara Rao",        "7345678902", "owned",  "6.5",  "nageswara33@gpay"],
+        ["Bhavani Devi",         "9456789013", "owned",  "2.5",  "bhavani07@paytm"],
+        ["Krishnamurthy Iyer",   "8567890124", "leased", "3.0",  "krishna88@phonepe"],
+        ["Lakshmi Bai",          "9678901235", "owned",  "1.0",  ""],
+        ["Obulaiah Reddy",       "7789012346", "owned",  "7.5",  "obulaiah55@gpay"],
+    ]
+    for row in sample_rows:
+        writer.writerow(row)
+    output.seek(0)
+    return StreamingResponse(
+        io.BytesIO(output.getvalue().encode()),
+        media_type="text/csv",
+        headers={"Content-Disposition": "attachment; filename=farmer_bulk_template.csv"}
+    )
+
 # ─── Activities (formerly Claims) ───
 
 SPECIES_RATES = {
