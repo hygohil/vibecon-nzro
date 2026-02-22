@@ -139,9 +139,14 @@ export default function FarmersPage() {
           <h1 className="text-3xl font-bold text-[#1F2937] tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>Farmers</h1>
           <p className="text-[#6B7280] mt-1">{farmers.length} farmers enrolled across {projects.length} projects</p>
         </div>
-        <Button onClick={() => setShowCreate(true)} data-testid="add-farmer-btn" className="bg-[#1A4D2E] text-white hover:bg-[#143C24] shadow-sm font-medium px-5 py-2.5 rounded-lg transition-all active:scale-95">
-          <Plus className="w-4 h-4 mr-2" /> Add Farmer
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowBulkUpload(true)} variant="outline" data-testid="bulk-upload-btn" className="border-[#1A4D2E]/30 text-[#1A4D2E] hover:bg-emerald-50 font-medium px-4 py-2.5 rounded-lg">
+            <Upload className="w-4 h-4 mr-2" /> Bulk Upload
+          </Button>
+          <Button onClick={() => setShowCreate(true)} data-testid="add-farmer-btn" className="bg-[#1A4D2E] text-white hover:bg-[#143C24] shadow-sm font-medium px-5 py-2.5 rounded-lg transition-all active:scale-95">
+            <Plus className="w-4 h-4 mr-2" /> Add Farmer
+          </Button>
+        </div>
       </div>
 
       {/* Filters */}
