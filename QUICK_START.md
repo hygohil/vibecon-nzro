@@ -151,7 +151,7 @@ CORS_ORIGINS=*
 
 **Frontend (.env):**
 ```
-REACT_APP_BACKEND_URL=https://repo-watcher-1.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://add-farmer-ux.preview.emergentagent.com
 ```
 
 **⚠️ IMPORTANT:** Never hardcode these values in code. Always use environment variables.
