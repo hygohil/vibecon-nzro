@@ -32,6 +32,8 @@ export default function CreditsPage() {
   const [showStatusDialog, setShowStatusDialog] = useState(false);
   const [selectedCredit, setSelectedCredit] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all');
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
   
   // Form states
   const [projectId, setProjectId] = useState('');
