@@ -1,0 +1,149 @@
+{
+  "summary": "Comprehensive audit of VanaLedger app after Programs→Projects and Claims→Activities refactoring. Backend 100% pass (37/37). Frontend has 1 CRITICAL bug (Add Farmer always disabled), plus multiple stale-terminology and pagination/search bugs.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "FarmersPage - Add Farmer Modal",
+        "issue": "CRITICAL: Submit button ALWAYS disabled when using PhoneInput with +91 country code. validatePhoneNumber() strips non-digits from '+919876543210' = '919876543210' (12 digits), fails the digits.length===10 check. Farmers CANNOT be added via UI. Fix: in FarmersPage.js validatePhoneNumber(), strip country code before counting digits.",
+        "selector": "[data-testid='submit-farmer-btn']",
+        "priority": "CRITICAL"
+      },
+      {
+        "component": "ProjectsPage - Project Cards",
+        "issue": "Each project card stat label shows 'Claims' instead of 'Activities'. Line 146 in ProjectsPage.js: <p className='text-[10px] text-[#6B7280]'>Claims</p>",
+        "selector": ".grid.grid-cols-3 p.text-[10px]",
+        "priority": "HIGH"
+      },
+      {
+        "component": "FarmersPage - Subtitle",
+        "issue": "Subtitle shows '10 farmers enrolled across 4 projects' (uses farmers.length = current page = 10) instead of '65 farmers enrolled'. Should use totalCount state variable.",
+        "selector": "[data-testid='farmers-page'] p.text-[#6B7280]",
+        "priority": "HIGH"
+      },
+      {
+        "component": "FarmersPage - Search Filter",
+        "issue": "Search is applied client-side only on current page's 10 farmers. Searching for a farmer on another page returns 0 results. Pagination still shows 'Page 1 of 7' even when search returns 0 rows. The backend supports server-side search but FarmersPage doesn't pass search param to API.",
+        "selector": "[data-testid='farmer-search']",
+        "priority": "HIGH"
+      },
+      {
+        "component": "FarmersPage - Project Filter",
+        "issue": "Project filter is applied client-side on current 10 farmers only. Shows 3 rows when filtering by a project that has 18+ farmers. Pagination doesn't update when filtering. fetchData() doesn't pass project_id to backend.",
+        "selector": "[data-testid='project-filter']",
+        "priority": "HIGH"
+      },
+      {
+        "component": "ExportPage - Missing Payout CSV",
+        "issue": "Only 5 export cards shown. Requirements specify 6 buttons including Payout CSV. Payout CSV (/api/export/payout-csv) exists in backend but is NOT listed in ExportPage.js exports array. It's only accessible from the Ledger page Export CSV button.",
+        "selector": "[data-testid='export-card-payout']",
+        "priority": "HIGH"
+      },
+      {
+        "component": "VerificationPage - Add Activity Farmer Dropdown",
+        "issue": "Farmer dropdown in 'Add Activity' dialog shows only 10 options (first page of paginated API). FarmersPage.js:44 calls /api/farmers without page_size override. All 65 farmers should be available.",
+        "selector": "[data-testid='activity-farmer-select']",
+        "priority": "HIGH"
+      },
+      {
+        "component": "LoginPage - Stale Terminology",
+        "issue": "Left panel: 'Manage tree plantation programs, onboard farmers, track claims...' - should use 'projects' and 'activities'. Right panel subtitle: 'Sign in to manage your tree plantation programs.' - should say 'projects'.",
+        "selector": "[data-testid='login-page']",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "FarmersPage - Disclaimer",
+        "issue": "'Estimates only. Actual issuance and payout depend on monitoring, verification, and program rules.' - uses old term 'program rules', should say 'project rules'.",
+        "selector": ".bg-amber-50.border-t",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "LedgerPage - Empty State",
+        "issue": "Empty state message says 'No ledger entries yet. Approve claims to see payouts.' - old terminology. Should say 'Approve activities'.",
+        "selector": "td:has-text('Approve claims')",
+        "priority": "MEDIUM"
+      },
+      {
+        "component": "CreditsPage - Missing data-testid",
+        "issue": "Log Issuance button missing data-testid attribute (data-testid=None). Credit cards missing data-testid. Status Update dialog missing data-testid. Makes automated testing harder.",
+        "selector": "button:has-text('Log Issuance')",
+        "priority": "LOW"
+      },
+      {
+        "component": "CreditsPage / VerificationPage - Native Date Pickers",
+        "issue": "Issuance Date (Credits page) and Date Planted (Verification page) use browser's native date picker (mm/dd/yyyy) instead of shadcn calendar component. Inconsistent UI.",
+        "selector": "input[type='date']",
+        "priority": "LOW"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Add Farmer",
+        "issue": "Due to PhoneInput country code (+91) prefix, validatePhoneNumber always returns false for valid Indian numbers. Farmer addition is completely broken in the UI.",
+        "affected_selectors": ["[data-testid='submit-farmer-btn']", "[data-testid='farmer-phone-input']"]
+      },
+      {
+        "flow": "Farmers search+pagination",
+        "issue": "Search and project filter are client-side on current page only. With 65 farmers across 7 pages, only farmers on the current loaded page can be searched/filtered. fetchData() needs to pass search + project_id to backend API.",
+        "affected_selectors": ["[data-testid='farmer-search']", "[data-testid='project-filter']"]
+      }
+    ],
+    "design_issues": [
+      {
+        "screen": "Projects Page - Project Cards",
+        "issues": ["Each card shows 'Claims' label instead of 'Activities' - stale terminology after renaming"]
+      },
+      {
+        "screen": "Login Page",
+        "issues": ["Left panel body text and right panel subtitle still use 'programs' and 'claims' (old terminology)"]
+      }
+    ]
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_vanaledger.py",
+    "/app/test_reports/pytest/pytest_results.xml"
+  ],
+  "action_items": [
+    "CRITICAL FIX: FarmersPage.js validatePhoneNumber() - strip country code before digit count. Change: const digits = phone.replace(/[^\\d]/g, ''); to account for +91 prefix (e.g., check last 10 digits or strip +91 first)",
+    "HIGH: ProjectsPage.js line 146 - change label 'Claims' to 'Activities'",
+    "HIGH: FarmersPage.js line 139 - change {farmers.length} to {totalCount} in subtitle",
+    "HIGH: FarmersPage.js - make search and project filter server-side (pass search+project_id to API), or at minimum load all farmers without pagination for filtering",
+    "HIGH: ExportPage.js - add Payout CSV export card to the exports array (endpoint: /export/payout-csv)",
+    "HIGH: VerificationPage.js line 44 - fetch all farmers for dropdown: change /farmers to /farmers?page_size=1000 or use a separate dedicated endpoint",
+    "MEDIUM: LoginPage.js - update text from 'programs'/'claims' to 'projects'/'activities'",
+    "MEDIUM: FarmersPage.js disclaimer - change 'program rules' to 'project rules'",
+    "MEDIUM: LedgerPage.js - change 'Approve claims' empty state text to 'Approve activities'",
+    "LOW: CreditsPage.js - add data-testid to Log Issuance button and credit cards",
+    "LOW: Consider replacing native date picker with shadcn calendar in CreditsPage and VerificationPage"
+  ],
+  "critical_code_review_comments": [
+    "CRITICAL: PhoneInput produces '+91XXXXXXXXXX' (12 digits) but validatePhoneNumber checks for exactly 10 digits after stripping non-digits. This permanently disables the Add Farmer submit button. Root fix: `const digits = phone.replace(/^\\+\\d{1,3}/, '').replace(/[^\\d]/g, '');`",
+    "HIGH: FarmersPage search+filter work purely client-side on 10 fetched items per page. Total count stays at 65 when filtered to 0. fetchData should accept and forward search/filter params to backend.",
+    "MEDIUM: VerificationPage fetches /api/farmers with default page_size=10. For 65 farmers only 10 appear in Add Activity dropdown. Should use page_size=1000 or dedicated unpaginated endpoint.",
+    "LOW: VerificationPage.js line 234 has typo comment {/* Disactivityer */} - clearly a renamed 'Disclaimer' comment from the Claims→Activities refactoring"
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "100% (37/37 tests passed)",
+    "frontend": "60% (Login✓, Dashboard✓, Projects partial (label bug), Farmers partial (subtitle/search/filter bugs, CRITICAL add farmer broken), Verification partial (farmer dropdown incomplete), Credits✓, Ledger✓, Exports partial (missing Payout CSV card), Sidebar✓)"
+  },
+  "seed_data_creation": "None created - using existing seeded data: 4 projects, 65 farmers, 227 activities, 4 credits",
+  "retest_needed": true,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "All backend APIs pass. Critical frontend bug: Add Farmer always disabled due to phone validation mismatch with PhoneInput component. Projects page shows 'Claims' instead of 'Activities'. Farmers subtitle shows wrong count (10 vs 65). Search/filter client-side only. Export page missing Payout CSV card. Verification farmer dropdown only 10 of 65 farmers.",
+  "rca_of_issues": {
+    "add_farmer_broken": {
+      "description": "PhoneInput stores full value as countryCode+number (e.g., '+919876543210'). FarmersPage.validatePhoneNumber strips all non-digits giving '919876543210' (12 digits). Check is digits.length===10 → always false for +91. Submit button disabled. Farmer cannot be created.",
+      "file": "frontend/src/pages/FarmersPage.js:57-61",
+      "fix": "Change validatePhoneNumber to extract only the number part after country code. E.g.: const digits = phone.replace(/^\\+\\d{1,3}/, '').replace(/[^\\d]/g, ''); return digits.length === 10;"
+    },
+    "claims_label_on_projects": {
+      "description": "ProjectsPage.js was partially refactored - activities_count field was renamed but the UI label on line 146 still reads 'Claims'.",
+      "file": "frontend/src/pages/ProjectsPage.js:146",
+      "fix": "Change 'Claims' to 'Activities' in the stat label"
+    }
+  }
+}
