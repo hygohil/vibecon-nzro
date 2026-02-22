@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Plus, Phone, MapPin, Banknote, Search, ChevronLeft, ChevronRight, AlertCircle, Info, Upload, FileText, CheckCircle, XCircle, Download, ArrowRight, Loader2 } from 'lucide-react';
+import { Users, Plus, Phone, MapPin, Banknote, Search, ChevronLeft, ChevronRight, AlertCircle, Info, Upload, FileText, CheckCircle, XCircle, Download, ArrowRight, Loader2, Trash2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
 import { Label } from '../components/ui/label';
 import { Badge } from '../components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '../components/ui/alert-dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { PhoneInput } from '../components/ui/phone-input';
