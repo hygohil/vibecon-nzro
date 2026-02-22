@@ -82,28 +82,28 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent Claims */}
+      {/* Recent Activities */}
       <Card className="bg-white border border-gray-100 rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg font-semibold" style={{ fontFamily: 'Manrope, sans-serif' }}>Recent Claims</CardTitle>
+          <CardTitle className="text-lg font-semibold" style={{ fontFamily: 'Manrope, sans-serif' }}>Recent Activities</CardTitle>
         </CardHeader>
         <CardContent>
-          {stats?.recent_claims?.length > 0 ? (
+          {stats?.recent_activities?.length > 0 ? (
             <div className="space-y-3">
-              {stats.recent_claims.map((claim) => (
-                <div key={claim.claim_id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50/50 hover:bg-gray-100/50 transition-colors" data-testid={`recent-claim-${claim.claim_id}`}>
+              {stats.recent_activities.map((activity) => (
+                <div key={activity.activity_id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50/50 hover:bg-gray-100/50 transition-colors" data-testid={`recent-activity-${activity.activity_id}`}>
                   <div className="flex items-center gap-3">
                     <div className="w-9 h-9 bg-emerald-100 rounded-full flex items-center justify-center">
                       <Leaf className="w-4 h-4 text-[#1A4D2E]" />
                     </div>
                     <div>
-                      <p className="text-sm font-medium text-[#1F2937]">{claim.farmer_name || 'Unknown'}</p>
-                      <p className="text-xs text-[#6B7280]">{claim.tree_count} {claim.species} trees</p>
+                      <p className="text-sm font-medium text-[#1F2937]">{activity.farmer_name || 'Unknown'}</p>
+                      <p className="text-xs text-[#6B7280]">{activity.tree_count} {activity.species} trees</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-sm font-medium text-[#1A4D2E]" style={{ fontFamily: 'JetBrains Mono, monospace' }}>₹{claim.estimated_payout}</span>
-                    <Badge className={`text-[10px] border ${statusColors[claim.status] || statusColors.pending}`}>{claim.status}</Badge>
+                    <span className="text-sm font-medium text-[#1A4D2E]" style={{ fontFamily: 'JetBrains Mono, monospace' }}>₹{activity.estimated_payout}</span>
+                    <Badge className={`text-[10px] border ${statusColors[activity.status] || statusColors.pending}`}>{activity.status}</Badge>
                   </div>
                 </div>
               ))}
@@ -111,7 +111,7 @@ export default function DashboardPage() {
           ) : (
             <div className="text-center py-8 text-[#6B7280]">
               <ClipboardCheck className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-              <p className="text-sm">No claims yet. Create a program and onboard farmers to get started.</p>
+              <p className="text-sm">No activities yet. Create a project and onboard farmers to get started.</p>
             </div>
           )}
         </CardContent>
