@@ -13,7 +13,7 @@ python3 db_seed.py seed
 python3 db_seed.py stats
 
 # 3. Open the app and login
-# Visit: https://add-farmer-ux.preview.emergentagent.com
+# Visit: https://vanaledger-refactor.preview.emergentagent.com
 ```
 
 **That's it!** You now have:
@@ -182,7 +182,7 @@ CORS_ORIGINS=*
 
 ### Frontend (.env)
 ```
-REACT_APP_BACKEND_URL=https://add-farmer-ux.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://vanaledger-refactor.preview.emergentagent.com
 ```
 
 **⚠️ Important:** Never hardcode these in code!
