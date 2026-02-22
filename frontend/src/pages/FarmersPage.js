@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Users, Plus, Phone, MapPin, Banknote, Search } from 'lucide-react';
+import { Users, Plus, Phone, MapPin, Banknote, Search, ChevronLeft, ChevronRight, AlertCircle, Info } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -9,6 +9,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '../components/ui/table';
 import { PhoneInput } from '../components/ui/phone-input';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../components/ui/tooltip';
 import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -21,6 +22,11 @@ export default function FarmersPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [search, setSearch] = useState('');
   const [filterProject, setFilterProject] = useState('all');
+  const [page, setPage] = useState(1);
+  const [pageSize] = useState(10);
+  const [totalCount, setTotalCount] = useState(0);
+  const [phoneCheckLoading, setPhoneCheckLoading] = useState(false);
+  const [phoneExists, setPhoneExists] = useState(false);
   const [form, setForm] = useState({
     name: '', phone: '',
     land_type: 'owned', acres: '', upi_id: '', project_id: ''
@@ -28,17 +34,51 @@ export default function FarmersPage() {
 
   const fetchData = async () => {
     try {
-      const [fRes, pRes] = await Promise.all([
-        fetch(`${API}/farmers`, { credentials: 'include' }),
+      const [fRes, pRes, countRes] = await Promise.all([
+        fetch(`${API}/farmers?page=${page}&page_size=${pageSize}`, { credentials: 'include' }),
         fetch(`${API}/projects`, { credentials: 'include' }),
+        fetch(`${API}/farmers/count/total`, { credentials: 'include' }),
       ]);
       if (fRes.ok) setFarmers(await fRes.json());
       if (pRes.ok) setProjects(await pRes.json());
-    } catch {}
+      if (countRes.ok) {
+        const data = await countRes.json();
+        setTotalCount(data.total);
+      }
+    } catch (e) {
+      console.error('Error fetching data:', e);
+    }
     setLoading(false);
   };
 
-  useEffect(() => { fetchData(); }, []);
+  useEffect(() => { fetchData(); }, [page]);
+  
+  const checkPhoneUniqueness = async (phone) => {
+    if (!phone || phone.length < 10) {
+      setPhoneExists(false);
+      return;
+    }
+    
+    setPhoneCheckLoading(true);
+    try {
+      const res = await fetch(`${API}/farmers/check-phone`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setPhoneExists(data.exists);
+        if (data.exists) {
+          toast.error('This mobile number is already registered');
+        }
+      }
+    } catch (e) {
+      console.error('Error checking phone:', e);
+    }
+    setPhoneCheckLoading(false);
+  };
 
   const handleCreate = async () => {
     if (!form.name || !form.phone || !form.project_id) {
