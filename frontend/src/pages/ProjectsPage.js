@@ -56,13 +56,30 @@ export default function ProjectsPage() {
       const res = await fetch(`${API}/projects`, {
         method: 'POST', credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, payout_rate: Number(form.payout_rate), survival_rate: Number(form.survival_rate), conservative_discount: Number(form.conservative_discount), max_trees_per_acre: Number(form.max_trees_per_acre), cooldown_days: Number(form.cooldown_days), monitoring_frequency_days: Number(form.monitoring_frequency_days) }),
+        body: JSON.stringify({
+          ...form,
+          payout_rate: Number(form.payout_rate),
+          survival_rate: LOCKED_PARAMS.survival_rate,
+          conservative_discount: LOCKED_PARAMS.conservative_discount,
+          max_trees_per_acre: LOCKED_PARAMS.max_trees_per_acre,
+          cooldown_days: LOCKED_PARAMS.cooldown_days,
+          monitoring_frequency_days: LOCKED_PARAMS.monitoring_frequency_days,
+        }),
       });
       if (res.ok) {
         toast.success('Project created');
         setShowCreate(false);
         fetchProjects();
-        setForm({ name: '', region: '', description: '', species_list: defaultSpecies, payout_rule_type: 'per_tree', payout_rate: 50, survival_rate: 0.7, conservative_discount: 0.2, max_trees_per_acre: 400, cooldown_days: 30, monitoring_frequency_days: 90, required_proofs: ['location', 'photo'] });
+        setForm({
+          name: '',
+          region: '',
+          description: '',
+          species_list: [],
+          payout_rule_type: 'per_tco2e',
+          payout_rate: 500,
+          ...LOCKED_PARAMS,
+          required_proofs: ['location', 'photo'],
+        });
       } else {
         const err = await res.json();
         toast.error(err.detail || 'Failed to create');
