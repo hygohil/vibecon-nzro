@@ -320,7 +320,7 @@ export default function FarmersPage() {
             <Button 
               onClick={handleCreate} 
               data-testid="submit-farmer-btn" 
-              disabled={phoneExists || phoneCheckLoading || (form.phone && !validatePhoneNumber(form.phone))}
+              disabled={submitting || (form.phone && !validatePhoneNumber(form.phone))}
               className="bg-[#1A4D2E] text-white hover:bg-[#143C24] disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               Add Farmer
