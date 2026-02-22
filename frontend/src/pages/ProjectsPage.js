@@ -142,7 +142,7 @@ export default function ProjectsPage() {
                   </div>
                   <div className="text-center p-2 bg-gray-50 rounded-lg">
                     <p className="text-lg font-bold text-[#B45309]" style={{ fontFamily: 'Manrope, sans-serif' }}>{p.activities_count}</p>
-                    <p className="text-[10px] text-[#6B7280]">Claims</p>
+                    <p className="text-[10px] text-[#6B7280]">Activities</p>
                   </div>
                   <div className="text-center p-2 bg-gray-50 rounded-lg">
                     <p className="text-lg font-bold text-[#059669]" style={{ fontFamily: 'Manrope, sans-serif' }}>₹{p.payout_rate}</p>
