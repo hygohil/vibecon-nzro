@@ -101,6 +101,8 @@ class FarmerOut(BaseModel):
     approved_trees: int = 0
     estimated_credits: float = 0.0
     total_payout: float = 0.0
+    estimated_credits_1y: float = 0.0  # NEW: 1-year estimate
+    estimated_payout_1y: float = 0.0   # NEW: 1-year payout estimate
     created_at: Optional[str] = None
 
 # RENAMED: ClaimCreate → ActivityCreate, program_id → project_id
