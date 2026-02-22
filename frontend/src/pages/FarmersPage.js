@@ -127,6 +127,29 @@ export default function FarmersPage() {
     }
   };
 
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`${API}/farmers/${deleteTarget.farmer_id}`, {
+        method: 'DELETE', credentials: 'include',
+      });
+      if (res.ok) {
+        toast.success(`${deleteTarget.name} removed successfully`);
+        setDeleteTarget(null);
+        if (farmers.length === 1 && page > 1) setPage(p => p - 1);
+        else fetchData();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.detail || 'Could not delete farmer');
+      }
+    } catch {
+      toast.error('Something went wrong');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const filtered = farmers.filter(f => {
     const matchSearch = !search || f.name.toLowerCase().includes(search.toLowerCase()) || f.phone.includes(search) || (f.project_name && f.project_name.toLowerCase().includes(search.toLowerCase()));
     const matchProject = filterProject === 'all' || f.project_id === filterProject;
