@@ -406,6 +406,96 @@ export default function ProjectsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      {/* Edit Project Dialog */}
+      <Dialog open={!!editTarget} onOpenChange={open => { if (!open) setEditTarget(null); }}>
+        <DialogContent className="max-w-md" data-testid="edit-project-dialog">
+          <DialogHeader>
+            <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>Edit Project</DialogTitle>
+          </DialogHeader>
+          {editTarget && (
+            <div className="space-y-4">
+              {/* Impact note */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 flex items-start gap-2">
+                <TrendingUp className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-blue-800">
+                  Changing the payout rate will immediately update estimated payouts for all <strong>{editTarget.farmers_count || 0} farmer(s)</strong> in this project.
+                </p>
+              </div>
+
+              <div>
+                <Label>Project Name *</Label>
+                <Input
+                  data-testid="edit-project-name-input"
+                  value={editForm.name}
+                  onChange={e => setEditForm({ ...editForm, name: e.target.value })}
+                  className="mt-1"
+                />
+              </div>
+
+              <div>
+                <Label>Description</Label>
+                <Textarea
+                  data-testid="edit-project-desc-input"
+                  value={editForm.description}
+                  onChange={e => setEditForm({ ...editForm, description: e.target.value })}
+                  className="mt-1"
+                  rows={2}
+                />
+              </div>
+
+              <div className="border-t pt-4">
+                <Label className="font-semibold text-gray-800">Payout Rate (₹ / tCO₂e) *</Label>
+                <div className="mt-2 relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">₹</span>
+                  <Input
+                    data-testid="edit-payout-rate-input"
+                    type="number"
+                    step="50"
+                    min="1"
+                    value={editForm.payout_rate}
+                    onChange={e => setEditForm({ ...editForm, payout_rate: e.target.value })}
+                    className="pl-7"
+                  />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Current: ₹{editTarget.payout_rate}/tCO₂e
+                  {Number(editForm.payout_rate) !== editTarget.payout_rate && Number(editForm.payout_rate) > 0 && (
+                    <span className={`ml-2 font-medium ${Number(editForm.payout_rate) > editTarget.payout_rate ? 'text-emerald-600' : 'text-red-500'}`}>
+                      → ₹{Number(editForm.payout_rate).toLocaleString('en-IN')}/tCO₂e
+                      {Number(editForm.payout_rate) > editTarget.payout_rate ? ' ↑' : ' ↓'}
+                    </span>
+                  )}
+                </p>
+              </div>
+
+              {/* Locked params — read-only reference */}
+              <div className="bg-gray-50 rounded-lg p-3 border">
+                <div className="flex items-center gap-1.5 mb-2">
+                  <Lock className="w-3 h-3 text-gray-400" />
+                  <span className="text-xs font-medium text-gray-500">Locked MRV Parameters</span>
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-xs text-gray-600">
+                  <div>Survival <span className="font-medium text-gray-800">{(editTarget.survival_rate * 100).toFixed(0)}%</span></div>
+                  <div>Discount <span className="font-medium text-gray-800">{(editTarget.conservative_discount * 100).toFixed(0)}%</span></div>
+                  <div>Max/Acre <span className="font-medium text-gray-800">{editTarget.max_trees_per_acre}</span></div>
+                </div>
+              </div>
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditTarget(null)} disabled={editSubmitting}>Cancel</Button>
+            <Button
+              onClick={handleEditSave}
+              data-testid="save-project-btn"
+              disabled={editSubmitting}
+              className="bg-[#1A4D2E] text-white hover:bg-[#143C24]"
+            >
+              {editSubmitting ? 'Saving...' : 'Save Changes'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
