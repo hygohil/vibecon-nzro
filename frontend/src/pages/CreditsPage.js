@@ -374,18 +374,29 @@ export default function CreditsPage() {
                   </div>
                 )}
 
-                <Button
-                  onClick={() => {
-                    setSelectedCredit(credit);
-                    setShowStatusDialog(true);
-                  }}
-                  variant="outline"
-                  size="sm"
-                  className="w-full"
-                  disabled={credit.status === 'retired'}
-                >
-                  Update Status
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => {
+                      setSelectedCredit(credit);
+                      setShowStatusDialog(true);
+                    }}
+                    variant="outline"
+                    size="sm"
+                    className="flex-1"
+                    disabled={credit.status === 'retired'}
+                    data-testid={`update-status-${credit.credit_id}`}
+                  >
+                    Update Status
+                  </Button>
+                  <button
+                    onClick={() => setDeleteTarget(credit)}
+                    data-testid={`delete-credit-${credit.credit_id}`}
+                    className="p-2 rounded-md text-gray-300 hover:text-red-500 hover:bg-red-50 transition-colors border border-gray-200"
+                    title="Delete issuance"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </CardContent>
             </Card>
           ))
