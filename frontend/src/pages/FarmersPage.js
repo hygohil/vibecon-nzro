@@ -179,13 +179,13 @@ export default function FarmersPage() {
                     <span className="text-sm font-medium">{f.approved_trees}/{f.total_trees}</span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm font-mono text-[#1A4D2E]">{f.estimated_credits?.toFixed(4)}</span>
+                    <span className="text-sm font-mono text-[#1A4D2E]">{f.estimated_credits_1y?.toFixed(4) || '0.0000'}</span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-sm font-mono font-medium text-[#B45309]">₹{f.total_payout?.toLocaleString('en-IN')}</span>
+                    <span className="text-sm font-mono font-medium text-[#B45309]">₹{Math.round(f.estimated_payout_1y || 0).toLocaleString('en-IN')}</span>
                   </TableCell>
                   <TableCell>
-                    <span className="text-xs text-[#6B7280]">{f.land_type}{f.acres ? ` (${f.acres}ac)` : ''}</span>
+                    <span className="text-xs text-[#6B7280]">{f.land_type}{f.acres ? ` (${Number(f.acres).toFixed(2)} ac)` : ''}</span>
                   </TableCell>
                 </TableRow>
               ))}
