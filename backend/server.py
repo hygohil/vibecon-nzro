@@ -55,6 +55,12 @@ class ProjectCreate(BaseModel):
     required_proofs: List[str] = ["location", "photo"]
     monitoring_frequency_days: int = 90
 
+class ProjectUpdate(BaseModel):
+    name: Optional[str] = None
+    description: Optional[str] = None
+    payout_rule_type: Optional[str] = None
+    payout_rate: Optional[float] = None
+
 # RENAMED: ProgramOut → ProjectOut, program_id → project_id, claims_count → activities_count
 class ProjectOut(BaseModel):
     model_config = ConfigDict(extra="ignore")
