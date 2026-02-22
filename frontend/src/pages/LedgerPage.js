@@ -113,7 +113,9 @@ export default function LedgerPage() {
                       <p className="text-xs text-[#6B7280]">{e.farmer_phone}</p>
                     </div>
                   </TableCell>
-                  <TableCell className="text-sm text-[#6B7280]">{e.farmer_village}</TableCell>
+                  <TableCell className="text-sm text-[#6B7280]">
+                    <Badge variant="outline" className="text-xs">{e.project_name || '-'}</Badge>
+                  </TableCell>
                   <TableCell className="text-xs font-mono text-[#6B7280]">{e.upi_id || '-'}</TableCell>
                   <TableCell className="text-right text-sm font-medium">{e.approved_trees_total}</TableCell>
                   <TableCell className="text-right text-sm font-mono text-[#1A4D2E]">{e.approved_credits_total?.toFixed(4)}</TableCell>
