@@ -376,6 +376,22 @@ async def delete_project(project_id: str, request: Request):
         raise HTTPException(status_code=404, detail="Project not found")
     return {"message": "Project deleted"}
 
+@api_router.put("/projects/{project_id}", response_model=ProjectOut)
+async def update_project(project_id: str, update: ProjectUpdate, request: Request):
+    user = await get_current_user(request)
+    project = await db.projects.find_one({"project_id": project_id, "user_id": user["user_id"]}, {"_id": 0})
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    changes = {k: v for k, v in update.model_dump().items() if v is not None}
+    if "payout_rate" in changes and changes["payout_rate"] <= 0:
+        raise HTTPException(status_code=400, detail="payout_rate must be positive")
+    if changes:
+        await db.projects.update_one({"project_id": project_id}, {"$set": changes})
+    p = await db.projects.find_one({"project_id": project_id, "user_id": user["user_id"]}, {"_id": 0})
+    p["farmers_count"] = await db.farmers.count_documents({"project_id": project_id})
+    p["activities_count"] = await db.activities.count_documents({"project_id": project_id})
+    return ProjectOut(**p)
+
 # ─── Farmers ───
 
 # ─── Farmers ───
