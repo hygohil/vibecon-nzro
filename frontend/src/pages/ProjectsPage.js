@@ -184,6 +184,9 @@ export default function ProjectsPage() {
                   <Button variant="outline" size="sm" onClick={() => setShowDetail(p)} data-testid={`view-project-${p.project_id}`} className="flex-1 text-xs border-[#1A4D2E]/20 text-[#1A4D2E] hover:bg-emerald-50">
                     <Eye className="w-3 h-3 mr-1" /> View
                   </Button>
+                  <Button variant="outline" size="sm" onClick={() => handleEditOpen(p)} data-testid={`edit-project-${p.project_id}`} className="text-xs border-blue-200 text-blue-600 hover:bg-blue-50">
+                    <Pencil className="w-3 h-3" />
+                  </Button>
                   <Button variant="outline" size="sm" onClick={() => deleteProject(p.project_id)} data-testid={`delete-project-${p.project_id}`} className="text-xs border-red-200 text-red-500 hover:bg-red-50">
                     <Trash2 className="w-3 h-3" />
                   </Button>
