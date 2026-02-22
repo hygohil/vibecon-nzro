@@ -54,10 +54,14 @@ export default function FarmersPage() {
   useEffect(() => { fetchData(); }, [page]);
 
   const validatePhoneNumber = (phone) => {
-    // Remove country code and special characters to get just digits
-    const digits = phone.replace(/[^\d]/g, '');
-    // Indian mobile numbers should be 10 digits
-    return digits.length === 10;
+    // Strip country code prefix (+91, +1, +44 etc.) then count remaining digits
+    const national = phone.replace(/^\+\d{1,4}/, '').replace(/[^\d]/g, '');
+    return national.length === 10;
+  };
+
+  // Extract just the 10-digit national number for display/storage
+  const getNationalNumber = (phone) => {
+    return phone.replace(/^\+\d{1,4}/, '').replace(/[^\d]/g, '');
   };
 
   const handleCreate = async () => {
