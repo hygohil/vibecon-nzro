@@ -63,7 +63,7 @@ export default function FarmersPage() {
   };
 
   const filtered = farmers.filter(f => {
-    const matchSearch = !search || f.name.toLowerCase().includes(search.toLowerCase()) || f.phone.includes(search) || f.village.toLowerCase().includes(search.toLowerCase());
+    const matchSearch = !search || f.name.toLowerCase().includes(search.toLowerCase()) || f.phone.includes(search) || (f.project_name && f.project_name.toLowerCase().includes(search.toLowerCase()));
     const matchProject = filterProject === 'all' || f.project_id === filterProject;
     return matchSearch && matchProject;
   });
