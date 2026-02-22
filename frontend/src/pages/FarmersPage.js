@@ -54,8 +54,9 @@ export default function FarmersPage() {
   useEffect(() => { fetchData(); }, [page]);
 
   const validatePhoneNumber = (phone) => {
-    // Strip country code prefix (+91, +1, +44 etc.) then count remaining digits
-    const national = phone.replace(/^\+\d{1,4}/, '').replace(/[^\d]/g, '');
+    if (!phone) return false;
+    // PhoneInput stores "+91XXXXXXXXXX". Strip exactly "+91" then check 10 digits.
+    const national = phone.replace(/^\+91/, '').replace(/[^\d]/g, '');
     return national.length === 10;
   };
 
