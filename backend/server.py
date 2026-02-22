@@ -472,6 +472,24 @@ async def list_farmers(request: Request, project_id: Optional[str] = None, page:
     # Could also return as wrapped response with {data, total, page, page_size}
     return [FarmerOut(**f) for f in farmers]
 
+@api_router.delete("/farmers/{farmer_id}")
+async def delete_farmer(farmer_id: str, request: Request):
+    user = await get_current_user(request)
+    farmer = await db.farmers.find_one({"farmer_id": farmer_id}, {"_id": 0, "project_id": 1, "name": 1})
+    if not farmer:
+        raise HTTPException(status_code=404, detail="Farmer not found")
+    # Verify farmer belongs to a project owned by this user
+    project = await db.projects.find_one({"project_id": farmer["project_id"], "user_id": user["user_id"]}, {"_id": 0})
+    if not project:
+        raise HTTPException(status_code=403, detail="Not authorised")
+    # Cascade delete
+    await db.farmers.delete_one({"farmer_id": farmer_id})
+    await db.activities.delete_many({"farmer_id": farmer_id})
+    await db.ledger.delete_many({"farmer_id": farmer_id})
+    await db.benefit_shares.delete_many({"farmer_id": farmer_id})
+    return {"deleted": True, "farmer_id": farmer_id, "name": farmer["name"]}
+
+
 @api_router.get("/farmers/{farmer_id}", response_model=FarmerOut)
 async def get_farmer(farmer_id: str, request: Request):
     _ = await get_current_user(request)  # Authentication check
