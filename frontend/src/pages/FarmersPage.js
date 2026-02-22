@@ -59,11 +59,6 @@ export default function FarmersPage() {
     return national.length === 10;
   };
 
-  // Extract just the 10-digit national number for display/storage
-  const getNationalNumber = (phone) => {
-    return phone.replace(/^\+\d{1,4}/, '').replace(/[^\d]/g, '');
-  };
-
   const handleCreate = async () => {
     // Clear previous phone error
     setPhoneError('');
