@@ -1045,8 +1045,178 @@ async def export_dossier_pdf(request: Request, project_id: Optional[str] = None)
     activities = await db.activities.find({"project_id": {"$in": project_ids}}, {"_id": 0}).to_list(10000)
     approved = [a for a in activities if a["status"] == "approved"]
 
+    def safe(text: str, max_len: int = 80) -> str:
+        """Encode to Latin-1 safe string for FPDF Helvetica."""
+        if not text:
+            return ""
+        return text.encode("latin-1", errors="replace").decode("latin-1")[:max_len]
+
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
+
+    # ── Cover Page ──────────────────────────────────────────────
+    pdf.add_page()
+    pdf.set_font("Helvetica", "B", 22)
+    pdf.cell(0, 15, "VanaLedger - Project Dossier", ln=True, align="C")
+    pdf.set_font("Helvetica", "I", 10)
+    pdf.cell(0, 8, "ESTIMATED UNITS - NOT ISSUED CREDITS", ln=True, align="C")
+    pdf.cell(0, 8, f"Generated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M UTC')}", ln=True, align="C")
+    pdf.ln(6)
+    pdf.set_draw_color(26, 77, 46)
+    pdf.set_line_width(0.8)
+    pdf.line(15, pdf.get_y(), 195, pdf.get_y())
+    pdf.ln(8)
+
+    # Portfolio summary if multiple projects
+    if len(projects) > 1:
+        pdf.set_font("Helvetica", "B", 14)
+        pdf.cell(0, 10, "Portfolio Summary", ln=True)
+        pdf.set_font("Helvetica", "", 11)
+        pdf.cell(0, 7, f"  Total Projects : {len(projects)}", ln=True)
+        pdf.cell(0, 7, f"  Total Farmers  : {len(farmers)}", ln=True)
+        pdf.cell(0, 7, f"  Total Activities: {len(activities)}", ln=True)
+        pdf.cell(0, 7, f"  Verified Activities: {len(approved)}", ln=True)
+        total_trees = sum(a["tree_count"] for a in approved)
+        total_credits = sum(a.get("estimated_credits", 0) for a in approved)
+        total_payout = sum(a.get("estimated_payout", 0) for a in approved)
+        pdf.cell(0, 7, f"  Approved Trees  : {total_trees:,}", ln=True)
+        pdf.cell(0, 7, f"  Est. tCO2e      : {total_credits:.4f}", ln=True)
+        pdf.cell(0, 7, f"  Est. Payout INR : {total_payout:,.2f}", ln=True)
+        pdf.ln(8)
+
+    # ── Per-Project Sections ────────────────────────────────────
+    for proj in projects:
+        pid = proj["project_id"]
+        proj_farmers = [f for f in farmers if f["project_id"] == pid]
+        proj_acts = [a for a in activities if a["project_id"] == pid]
+        proj_approved = [a for a in proj_acts if a["status"] == "approved"]
+        p_trees = sum(a["tree_count"] for a in proj_approved)
+        p_credits = sum(a.get("estimated_credits", 0) for a in proj_approved)
+        p_payout = sum(a.get("estimated_payout", 0) for a in proj_approved)
+
+        if len(projects) > 1:
+            pdf.add_page()
+
+        pdf.set_font("Helvetica", "B", 16)
+        pdf.set_fill_color(240, 248, 240)
+        pdf.cell(0, 12, safe(f"Project: {proj.get('name', 'N/A')}"), ln=True, fill=True)
+        pdf.ln(3)
+
+        # 1. Project Details
+        pdf.set_font("Helvetica", "B", 13)
+        pdf.cell(0, 9, "1. Project Details", ln=True)
+        pdf.set_font("Helvetica", "", 11)
+        pdf.cell(0, 7, safe(f"  Project Name  : {proj.get('name', 'N/A')}"), ln=True)
+        pdf.cell(0, 7, safe(f"  Region        : {proj.get('region', 'N/A')}"), ln=True)
+        pdf.cell(0, 7, safe(f"  Status        : {proj.get('status', 'active').upper()}"), ln=True)
+        pdf.cell(0, 7, f"  Created       : {str(proj.get('created_at', 'N/A'))[:10]}", ln=True)
+        if proj.get("description"):
+            pdf.set_font("Helvetica", "", 10)
+            pdf.multi_cell(0, 6, safe(f"  Description   : {proj['description']}", 200))
+        pdf.ln(4)
+
+        # 2. Species & Configuration
+        pdf.set_font("Helvetica", "B", 13)
+        pdf.cell(0, 9, "2. Species & Planting Configuration", ln=True)
+        pdf.set_font("Helvetica", "", 11)
+        for s in proj.get("species_list", []):
+            pdf.cell(0, 7, safe(f"  - {s.get('name', '').capitalize()}: {s.get('growth_rate', 'medium')} growth"), ln=True)
+        pdf.cell(0, 7, f"  Max trees/acre   : {proj.get('max_trees_per_acre', 400)}", ln=True)
+        pdf.cell(0, 7, f"  Monitoring every : {proj.get('monitoring_frequency_days', 90)} days", ln=True)
+        pdf.ln(4)
+
+        # 3. Credit Estimation Method
+        pdf.set_font("Helvetica", "B", 13)
+        pdf.cell(0, 9, "3. Credit Estimation Methodology", ln=True)
+        pdf.set_font("Helvetica", "", 11)
+        pdf.cell(0, 7, "  Formula: trees x seq_rate x survival x (1 - discount)", ln=True)
+        pdf.cell(0, 7, f"  Survival rate        : {proj.get('survival_rate', 0.7)*100:.0f}%", ln=True)
+        pdf.cell(0, 7, f"  Conservative discount: {proj.get('conservative_discount', 0.2)*100:.0f}%", ln=True)
+        pdf.cell(0, 7, "  Species seq. rates   : Fast=0.02 | Medium=0.01 | Slow=0.005 tCO2/tree/yr", ln=True)
+        pdf.set_font("Helvetica", "I", 9)
+        pdf.multi_cell(0, 6, "  DISCLAIMER: All values are estimates. Final issuance subject to third-party verification.")
+        pdf.ln(4)
+
+        # 4. Risk Controls
+        pdf.set_font("Helvetica", "B", 13)
+        pdf.cell(0, 9, "4. Risk Controls & Fraud Prevention", ln=True)
+        pdf.set_font("Helvetica", "", 11)
+        pdf.cell(0, 7, f"  Cooldown between activities : {proj.get('cooldown_days', 30)} days", ln=True)
+        pdf.cell(0, 7, safe(f"  Required proofs             : {', '.join(proj.get('required_proofs', []))}"), ln=True)
+        pdf.cell(0, 7, safe(f"  Payout rule                 : {proj.get('payout_rule_type', 'per_tree')} @ INR {proj.get('payout_rate', 50)}"), ln=True)
+        pdf.ln(4)
+
+        # 5. Monitoring Plan
+        pdf.set_font("Helvetica", "B", 13)
+        pdf.cell(0, 9, "5. Monitoring Plan", ln=True)
+        pdf.set_font("Helvetica", "", 11)
+        pdf.cell(0, 7, "  Survival checks at: 30, 90, and 365 days post-planting", ln=True)
+        pdf.cell(0, 7, "  Evidence required : Geo-tagged photos + GPS pin", ln=True)
+        pdf.cell(0, 7, f"  Monitoring cycle  : Every {proj.get('monitoring_frequency_days', 90)} days", ln=True)
+        pdf.ln(4)
+
+        # 6. Project Statistics
+        pdf.set_font("Helvetica", "B", 13)
+        pdf.cell(0, 9, "6. Project Statistics", ln=True)
+        pdf.set_font("Helvetica", "", 11)
+        pdf.cell(0, 7, f"  Farmers enrolled       : {len(proj_farmers)}", ln=True)
+        pdf.cell(0, 7, f"  Total activities       : {len(proj_acts)}", ln=True)
+        pdf.cell(0, 7, f"  Verified activities    : {len(proj_approved)}", ln=True)
+        pdf.cell(0, 7, f"  Pending verification   : {len([a for a in proj_acts if a['status'] == 'pending'])}", ln=True)
+        pdf.cell(0, 7, f"  Rejected activities    : {len([a for a in proj_acts if a['status'] == 'rejected'])}", ln=True)
+        pdf.cell(0, 7, f"  Approved trees         : {p_trees:,}", ln=True)
+        pdf.cell(0, 7, f"  Estimated tCO2e        : {p_credits:.4f}", ln=True)
+        pdf.cell(0, 7, f"  Est. payout (INR)      : {p_payout:,.2f}", ln=True)
+        pdf.ln(4)
+
+        # 7. Farmer Summary Table
+        pdf.set_font("Helvetica", "B", 13)
+        pdf.cell(0, 9, f"7. Farmer Roster ({min(len(proj_farmers), 15)} of {len(proj_farmers)} shown)", ln=True)
+        pdf.set_font("Helvetica", "B", 9)
+        pdf.set_fill_color(230, 245, 230)
+        pdf.cell(55, 7, "Name", border=1, fill=True)
+        pdf.cell(32, 7, "Phone", border=1, fill=True)
+        pdf.cell(22, 7, "Land Type", border=1, fill=True)
+        pdf.cell(20, 7, "Acres", border=1, fill=True)
+        pdf.cell(25, 7, "Appr. Trees", border=1, fill=True)
+        pdf.cell(26, 7, "Est. tCO2e", border=1, ln=True, fill=True)
+        pdf.set_font("Helvetica", "", 9)
+        for f in proj_farmers[:15]:
+            pdf.cell(55, 6, safe(str(f.get("name", "")), 30), border=1)
+            pdf.cell(32, 6, safe(str(f.get("phone", ""))), border=1)
+            pdf.cell(22, 6, safe(str(f.get("land_type", ""))), border=1)
+            pdf.cell(20, 6, str(f.get("acres", "N/A")), border=1)
+            pdf.cell(25, 6, str(f.get("approved_trees", 0)), border=1)
+            pdf.cell(26, 6, f"{f.get('estimated_credits', 0):.4f}", border=1, ln=True)
+        if len(proj_farmers) > 15:
+            pdf.set_font("Helvetica", "I", 9)
+            pdf.cell(0, 6, f"  ... and {len(proj_farmers)-15} more farmers", ln=True)
+        pdf.ln(4)
+
+    # Final disclaimer
+    pdf.add_page()
+    pdf.set_font("Helvetica", "B", 14)
+    pdf.cell(0, 10, "Important Disclaimers", ln=True)
+    pdf.set_font("Helvetica", "", 11)
+    pdf.multi_cell(0, 7,
+        "All carbon credit values in this document are ESTIMATES based on rule-of-thumb "
+        "calculations and have NOT been verified or certified by any registry.\n\n"
+        "Final carbon credit issuance depends on:\n"
+        "  1. Third-party field verification (DOE/VVB)\n"
+        "  2. Registry approval (Verra VCS, Gold Standard, ICM, or other)\n"
+        "  3. Actual survival rates at time of monitoring\n"
+        "  4. Adherence to project methodology\n\n"
+        "This document is generated from VanaLedger and is intended for internal "
+        "planning and pre-verification purposes only."
+    )
+
+    pdf_bytes = pdf.output()
+    proj_label = projects[0].get('name', '').replace(' ', '_') if len(projects) == 1 else "all_projects"
+    return StreamingResponse(
+        io.BytesIO(pdf_bytes),
+        media_type="application/pdf",
+        headers={"Content-Disposition": f"attachment; filename=project_dossier_{proj_label}.pdf"}
+    )
 
     # ── Cover Page ──────────────────────────────────────────────
     pdf.add_page()
