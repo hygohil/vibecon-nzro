@@ -1,136 +1,87 @@
-# VanaLedger - Aggregator OS for Carbon Credit Tree Plantation
+# VanaLedger — Aggregator OS for Carbon Credit Tree Plantation
 
 ## Original Problem Statement
-Build an Aggregator OS + WhatsApp farmer onboarding + tree-plantation ledger + payout calculator for carbon credit management. Two personas: Aggregator (Web panel) and Farmer (WhatsApp, external). Core flows: Program creation, Farmer onboarding, Claim submission with geo+photo evidence, Aggregator verification, Payout ledger, and comprehensive MRV-ready exports.
+Build a full-stack aggregator OS for carbon credit tree plantation management. Aggregators manage multiple projects, onboard farmers, track plantation activities, manage the MRV (Monitoring, Reporting, Verification) pipeline, and handle carbon credit issuance lifecycle.
 
 ## Architecture
-- **Frontend**: React 19 + Tailwind CSS + Shadcn/UI components
-- **Backend**: FastAPI (Python) on port 8001
-- **Database**: MongoDB (Motor async driver)
-- **Auth**: Emergent-managed Google OAuth
-- **Design**: "Agro-Trust" theme - Forest Canopy (#1A4D2E) + Terracotta (#B45309)
+- **Frontend**: React + TailwindCSS + Shadcn UI (port 3000)
+- **Backend**: FastAPI + Motor (async MongoDB) (port 8001, prefix `/api`)
+- **Database**: MongoDB
+- **Auth**: Emergent Google OAuth + Demo Mode cookie
 
-## User Personas
-1. **Aggregator** - Carbon credit program manager using web dashboard
-2. **Farmer** - Enrolled via WhatsApp (external platform), interacts through webhook APIs
+## Core Data Collections
+| Collection | Description |
+|---|---|
+| `projects` | Tree plantation projects (formerly programs) |
+| `farmers` | Farmer registry with unique phone constraint |
+| `activities` | Plantation evidence submissions (formerly claims) |
+| `ledger` | Per-farmer payout tracking |
+| `credits` | Registry-issued carbon credit lifecycle |
+| `benefit_shares` | Auto-calculated revenue shares per credit sale |
 
-## Core Requirements
-- Google OAuth authentication for aggregators
-- CRUD for tree plantation programs with configurable parameters
-- Farmer management (onboarding, tracking)
-- Claims queue with evidence review (photos + geo coordinates)
-- Carbon credit estimation (rule-of-thumb: tree_count x rate x survival x (1-discount))
-- Payout ledger with farmer-wise balance tracking
-- 5 export types: PDF Dossier, Activity CSV, Evidence JSON, Calculation Sheet, Audit Log
-- WhatsApp webhook endpoints (JOIN, CLAIM, STATUS)
+## What's Been Implemented
 
-## What's Been Implemented (Feb 21, 2026)
-- [x] Emergent Google OAuth login with session management
-- [x] Dashboard with bento grid metrics (8 KPIs)
-- [x] Programs CRUD (create/view/delete with species, rates, fraud controls)
-- [x] Farmers CRUD (add/list/search/filter by program)
-- [x] Claims queue (submit/approve/reject/needs-info with evidence viewer)
-- [x] Payout ledger (auto-updates on approval, farmer-wise balance, CSV export)
-- [x] Export Center: PDF Dossier, Activity CSV, Evidence JSON, Calculation Sheet, Audit Log
-- [x] WhatsApp webhook endpoints: /api/webhook/join, /api/webhook/claim, /api/webhook/status
-- [x] Carbon credit estimation formula with configurable species buckets
-- [x] Sidebar navigation with collapse/expand
-- [x] "Estimated units - not issued credits" disclaimers throughout
+### Major Refactoring (Feb 2026)
+- Renamed `programs` → `projects`, `claims` → `activities` throughout frontend + backend
+- Removed `village` and `district` from Farmer model
+- Updated all UI terminology: Sidebar, DashboardPage, ProjectsPage, FarmersPage, VerificationPage, CreditsPage, LedgerPage, ExportPage
 
-## Prioritized Backlog
-### P0 (Critical)
-- All P0 features implemented
+### Backend Rewrite
+- Full FastAPI rewrite with new schema
+- Pagination + sorting for farmers list
+- Backend-calculated estimated credits + payouts per farmer
+- Unique constraint on farmer phone number (409 Conflict on duplicate)
+- Credit lifecycle: issued → approved → sold → retired
+- Benefit shares auto-calculation on credit sale
 
-### P1 (High Priority)
-- Map view with Leaflet pins for geo-evidence visualization
-- Duplicate claim detection (same location + similar timeframe)
-- WhatsApp reminder scheduling (30/90/365 day survival checks)
-- Legal & Rights Pack PDF export (consent, rights assignment, non-duplication)
-- ZIP evidence pack export (bundled photos + geo data + logs)
+### New Features
+- **Credits Page**: Full lifecycle management (CreditsPage.js)
+- **Bulk CSV Farmer Onboarding**: Upload CSV → validate → confirm → onboard synchronously
+  - Endpoints: `/api/farmers/bulk/validate-csv`, `/api/farmers/bulk/onboard`, `/api/farmers/bulk/template`
+  - Frontend: 3-step modal (Setup → Validate → Results) with error table + error report download
+- **Export Center**: 6 exports — Project Dossier PDF, Activity CSV, Evidence JSON, Calculation Sheet, Payout CSV, Audit Log
 
-### P2 (Medium Priority)
-- Farmer consent/participation agreement capture
-- Photo hash-based duplicate detection
-- Bulk claim approval/rejection
-- UPI payout integration
-- Program-level analytics with charts (Recharts)
-- Farmer profile detail view with claim history
+### Data Quality
+- Fresh seed script (`backend/seed_fresh.py`) with proper Indian names, 10-digit phones, no village/district
+- 4 projects, 65 farmers, 227 activities, 4 credits in lifecycle stages, 28 benefit shares
 
-### P3 (Nice to Have)
-- Multi-language support (Hindi, Gujarati)
-- Push notifications for claim status changes
-- Nursery invoice capture
-- Field visit scheduling
-- Carbon price market data integration
+### Bug Fixes (Feb 2026)
+- Add Farmer phone validation: fixed `validatePhoneNumber` to strip `+91` before 10-digit check
+- Projects page "Claims" → "Activities" label
+- Dashboard "Recent Claims" → "Recent Activities"
+- PDF Dossier: multi-project support + Latin-1 safe text encoding
+- Payout CSV: added project_id, project_name, balance_INR columns
+- Audit Log CSV: added project_id, project_name, farmer_name, farmer_phone, species
+- Farmers page subtitle: uses `totalCount` not `farmers.length`
+- Disclaimer: "program rules" → "project rules"
+- Empty trailing CSV rows stripped before validation
 
-## Database Seeding & Testing
+## Pages & Routes
+| Route | Page | Status |
+|---|---|---|
+| `/` or `/login` | Login (Demo mode + Google OAuth) | ✅ |
+| `/dashboard` | KPI overview + Recent Activities | ✅ |
+| `/projects` | Projects list + Create Project modal | ✅ |
+| `/farmers` | Farmers table + Add Farmer + Bulk Upload | ✅ |
+| `/verification` | Activity approval queue | ✅ |
+| `/credits` | Carbon credit lifecycle | ✅ |
+| `/ledger` | Payout ledger | ✅ |
+| `/exports` | Export Center (6 exports) | ✅ |
 
-### Quick Commands
-All seeding operations can be run from `/app/backend/`:
+## P0 Backlog (Priority)
+- [ ] Auto Benefit Sharing: trigger on credit status → sold, auto-calculate + update ledger
+- [ ] Farmers search + filter: make server-side (currently client-side on 10 items/page)
+- [ ] Verification page farmer dropdown: fetch all 65 farmers (currently only 10)
 
-```bash
-# Main CLI tool (recommended)
-python3 db_seed.py [command]
+## P1 Backlog
+- [ ] Login page stale text: "programs"/"claims" → "projects"/"activities"
+- [ ] Ledger page empty state: "Approve claims" → "Approve activities"
+- [ ] CreditsPage: add data-testid attributes
+- [ ] Date pickers: replace native with Shadcn calendar in Credits + Verification pages
 
-# Available commands:
-python3 db_seed.py seed       # Seed database with test data
-python3 db_seed.py clear      # Clear all seed data
-python3 db_seed.py stats      # View database statistics
-python3 db_seed.py validate   # Validate data integrity
-python3 db_seed.py reset      # Clear + re-seed (fresh start)
-python3 db_seed.py help       # Show all options
-
-# Alternative: Direct scripts
-python3 seed_data.py          # Run seeder directly
-python3 view_db_stats.py      # View statistics
-python3 validate_seed_data.py # Validate data
-python3 clear_seed_data.py    # Clear data
-```
-
-### What Gets Seeded
-
-**4 Tree Plantation Programs:**
-- Coastal Green Belt Initiative (East Godavari) - Neem, Eucalyptus, Coconut
-- Krishna River Basin Afforestation (Krishna) - Bamboo, Banyan, Peepal
-- Guntur Dryland Agroforestry (Guntur) - Moringa, Neem, Mango
-- Urban Fringe Carbon Sequestration (Guntur) - Teak, Sandalwood
-
-**65 Farmers:** Realistic Indian names, villages, phone numbers (+91), UPI IDs
-
-**~220 Claims:** 60% approved, 15% pending, 25% rejected
-- Geo-tagged locations (Andhra Pradesh coordinates)
-- Sample photos (Unsplash URLs)
-- 12 tree species mix
-- Carbon calculations applied
-
-**60 Ledger Entries:** Auto-generated for farmers with approved claims
-
-### Test Data Summary
-- 🌳 ~12,000 approved trees per run
-- 🌍 ~84 tCO₂e estimated credits
-- 💵 ~₹530,000 total payout
-- 📍 30 villages across 5 districts
-- 🌱 12 tree species (fast/medium/slow growing)
-
-### Seeding Scripts Location
-`/app/backend/`:
-- `db_seed.py` - Main CLI tool (NEW)
-- `seed_data.py` - Core seeding logic
-- `view_db_stats.py` - Statistics viewer
-- `validate_seed_data.py` - Data integrity checker
-- `clear_seed_data.py` - Data cleanup
-- `SEEDING_README.md` - Full documentation
-- `SEEDING_SUMMARY.md` - Quick reference
-
-### When to Use
-- **Development:** Seed once at project start
-- **Testing:** Reset before major feature tests
-- **Demo:** Re-seed for clean demo data
-- **CI/CD:** Automate seeding in test environments
-
-## Next Tasks
-1. Add Leaflet map view for claims geo-evidence
-2. Implement Legal & Rights Pack PDF export
-3. Add ZIP evidence pack export
-4. Build duplicate claim detection
-5. Add survival check reminder scheduling
+## P2 / Future
+- [ ] Map view for geo-evidence
+- [ ] Legal & Rights Pack PDF export
+- [ ] Ledger "Source" indicator (project payout vs. credit revenue)
+- [ ] WhatsApp consent bulk send
+- [ ] Dedup merge workflows
