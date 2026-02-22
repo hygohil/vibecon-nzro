@@ -80,22 +80,40 @@ export default function FarmersPage() {
     setPhoneCheckLoading(false);
   };
 
+  const validatePhoneNumber = (phone) => {
+    // Remove country code and special characters to get just digits
+    const digits = phone.replace(/[^\d]/g, '');
+    // Indian mobile numbers should be 10 digits
+    return digits.length === 10;
+  };
+
   const handleCreate = async () => {
     if (!form.name || !form.phone || !form.project_id) {
-      toast.error('Fill all required fields'); return;
+      toast.error('Fill all required fields'); 
+      return;
     }
+    
+    // Validate phone number format
+    if (!validatePhoneNumber(form.phone)) {
+      toast.error('Phone number must be 10 digits');
+      return;
+    }
+    
     if (phoneExists) {
       toast.error('This mobile number is already registered');
       return;
     }
+    
     try {
       const res = await fetch(`${API}/farmers`, {
-        method: 'POST', credentials: 'include',
+        method: 'POST', 
+        credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...form, acres: form.acres ? Number(form.acres) : null }),
       });
+      
       if (res.ok) {
-        toast.success('Farmer added');
+        toast.success('Farmer added successfully');
         setShowCreate(false);
         setPage(1); // Reset to first page
         fetchData();
@@ -103,9 +121,19 @@ export default function FarmersPage() {
         setPhoneExists(false);
       } else {
         const err = await res.json();
-        toast.error(err.detail || 'Failed');
+        // Handle specific error cases
+        if (res.status === 409 || (err.detail && err.detail.includes('already registered'))) {
+          toast.error('This mobile number is already registered');
+        } else if (err.detail) {
+          toast.error(err.detail);
+        } else {
+          toast.error('Failed to add farmer');
+        }
       }
-    } catch { toast.error('Network error'); }
+    } catch (error) {
+      console.error('Error adding farmer:', error);
+      toast.error('Failed to add farmer. Please try again.');
+    }
   };
 
   const filtered = farmers.filter(f => {
