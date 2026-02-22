@@ -137,7 +137,7 @@ export default function FarmersPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-[#1F2937] tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>Farmers</h1>
-          <p className="text-[#6B7280] mt-1">{totalCount} farmers enrolled across {projects.length} projects</p>
+          <p className="text-[#6B7280] mt-1">View all farmers onboarded into projects</p>
         </div>
         <div className="flex gap-2">
           <Button onClick={() => setShowBulkUpload(true)} variant="outline" data-testid="bulk-upload-btn" className="border-[#1A4D2E]/30 text-[#1A4D2E] hover:bg-emerald-50 font-medium px-4 py-2.5 rounded-lg">
