@@ -154,8 +154,8 @@ export default function FarmersPage() {
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Farmer</TableHead>
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Project</TableHead>
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Trees</TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Est. Credits</TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Payout</TableHead>
+                <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">EST. CREDITS</TableHead>
+                <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">EST. PAYOUT</TableHead>
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Land</TableHead>
               </TableRow>
             </TableHeader>
