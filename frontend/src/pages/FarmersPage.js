@@ -304,7 +304,14 @@ export default function FarmersPage() {
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowCreate(false)}>Cancel</Button>
-            <Button onClick={handleCreate} data-testid="submit-farmer-btn" className="bg-[#1A4D2E] text-white hover:bg-[#143C24]">Add Farmer</Button>
+            <Button 
+              onClick={handleCreate} 
+              data-testid="submit-farmer-btn" 
+              disabled={phoneExists || phoneCheckLoading}
+              className="bg-[#1A4D2E] text-white hover:bg-[#143C24] disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              Add Farmer
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
