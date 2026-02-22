@@ -86,7 +86,7 @@ export default function FarmersPage() {
       <div className="flex gap-3 items-center">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6B7280]" />
-          <Input data-testid="farmer-search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, phone, village..." className="pl-9" />
+          <Input data-testid="farmer-search" value={search} onChange={e => setSearch(e.target.value)} placeholder="Search by name, phone, project..." className="pl-9" />
         </div>
         <Select value={filterProject} onValueChange={setFilterProject}>
           <SelectTrigger className="w-[200px]" data-testid="project-filter">
