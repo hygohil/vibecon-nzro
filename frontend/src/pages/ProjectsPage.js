@@ -372,17 +372,6 @@ export default function ProjectsPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-              <div className="p-3 bg-amber-50 rounded-lg border border-amber-200">
-                <p className="text-xs text-amber-700 font-medium">Fraud Controls</p>
-                <p className="text-xs text-amber-600 mt-1">Max {showDetail.max_trees_per_acre} trees/acre | {showDetail.cooldown_days}d cooldown | Proofs: {showDetail.required_proofs?.join(', ')}</p>
-              </div>
-              <div className="p-3 bg-gray-50 rounded-lg font-mono text-xs text-[#6B7280]" data-testid="project-id-display">
-                Project ID: {showDetail.project_id}
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
