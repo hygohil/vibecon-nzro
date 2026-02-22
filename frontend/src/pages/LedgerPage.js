@@ -94,7 +94,7 @@ export default function LedgerPage() {
             <TableHeader>
               <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Farmer</TableHead>
-                <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Village</TableHead>
+                <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">Project</TableHead>
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280]">UPI ID</TableHead>
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280] text-right">Approved Trees</TableHead>
                 <TableHead className="text-xs font-semibold uppercase tracking-wider text-[#6B7280] text-right">Est. tCO2e</TableHead>
