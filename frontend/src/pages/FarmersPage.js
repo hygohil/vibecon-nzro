@@ -84,6 +84,10 @@ export default function FarmersPage() {
     if (!form.name || !form.phone || !form.project_id) {
       toast.error('Fill all required fields'); return;
     }
+    if (phoneExists) {
+      toast.error('This mobile number is already registered');
+      return;
+    }
     try {
       const res = await fetch(`${API}/farmers`, {
         method: 'POST', credentials: 'include',
@@ -93,8 +97,10 @@ export default function FarmersPage() {
       if (res.ok) {
         toast.success('Farmer added');
         setShowCreate(false);
+        setPage(1); // Reset to first page
         fetchData();
         setForm({ name: '', phone: '', land_type: 'owned', acres: '', upi_id: '', project_id: '' });
+        setPhoneExists(false);
       } else {
         const err = await res.json();
         toast.error(err.detail || 'Failed');
