@@ -86,6 +86,14 @@ class FarmerCreate(BaseModel):
     upi_id: Optional[str] = None
     project_id: str
 
+class FarmerUpdate(BaseModel):
+    name: Optional[str] = None
+    phone: Optional[str] = None
+    land_type: Optional[str] = None
+    acres: Optional[float] = None
+    upi_id: Optional[str] = None
+    approved_trees: Optional[int] = None
+
 # REMOVED: village, district fields. RENAMED: program_id → project_id, program_name → project_name
 class FarmerOut(BaseModel):
     model_config = ConfigDict(extra="ignore")
