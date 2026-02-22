@@ -255,6 +255,14 @@ export default function FarmersPage() {
         </div>
       </Card>
 
+      {/* Bulk Upload Modal */}
+      <BulkUploadModal
+        open={showBulkUpload}
+        onClose={() => setShowBulkUpload(false)}
+        projects={projects}
+        onSuccess={() => { setPage(1); fetchData(); }}
+      />
+
       {/* Create Dialog */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent className="max-w-md" data-testid="add-farmer-dialog">
