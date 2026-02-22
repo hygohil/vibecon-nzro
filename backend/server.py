@@ -559,19 +559,6 @@ def _validate_bulk_row(row: dict, row_num: int) -> list[str]:
     return errors
 
 
-@api_router.post("/farmers/bulk/validate")
-async def bulk_validate_farmers(
-    request: Request,
-    file: "UploadFile" = "File(...)",
-    project_id: str = "Form(...)"
-):
-    from fastapi import UploadFile, File, Form
-    raise HTTPException(status_code=500, detail="Use multipart form — see below")
-
-
-# Override with proper signature using the imports available
-from fastapi import UploadFile, File, Form
-
 @api_router.post("/farmers/bulk/validate-csv")
 async def bulk_validate_csv(
     request: Request,
