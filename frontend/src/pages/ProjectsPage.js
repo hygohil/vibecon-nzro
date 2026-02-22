@@ -15,14 +15,14 @@ import { INDIAN_STATES, getStateLabel } from '../lib/indian-states';
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-const defaultSpecies = [
-  { name: 'Neem', growth_rate: 'medium' },
-  { name: 'Mango', growth_rate: 'medium' },
-  { name: 'Teak', growth_rate: 'medium' },
-  { name: 'Eucalyptus', growth_rate: 'fast_growing' },
-  { name: 'Bamboo', growth_rate: 'fast_growing' },
-  { name: 'Banyan', growth_rate: 'slow' },
-];
+// Conservative MRV defaults - locked for standardization
+const LOCKED_PARAMS = {
+  survival_rate: 0.7,
+  conservative_discount: 0.2,
+  max_trees_per_acre: 400,
+  cooldown_days: 30,
+  monitoring_frequency_days: 90,
+};
 
 export default function ProjectsPage() {
   const [projects, setProjects] = useState([]);
@@ -30,15 +30,13 @@ export default function ProjectsPage() {
   const [showCreate, setShowCreate] = useState(false);
   const [showDetail, setShowDetail] = useState(null);
   const [form, setForm] = useState({
-    name: '', region: '', description: '',
-    species_list: defaultSpecies,
-    payout_rule_type: 'per_tree',
-    payout_rate: 50,
-    survival_rate: 0.7,
-    conservative_discount: 0.2,
-    max_trees_per_acre: 400,
-    cooldown_days: 30,
-    monitoring_frequency_days: 90,
+    name: '',
+    region: '',
+    description: '',
+    species_list: [],
+    payout_rule_type: 'per_tco2e',
+    payout_rate: 500,
+    ...LOCKED_PARAMS,
     required_proofs: ['location', 'photo'],
   });
 
