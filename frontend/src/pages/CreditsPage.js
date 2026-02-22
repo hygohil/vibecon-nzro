@@ -157,6 +157,28 @@ export default function CreditsPage() {
     setRetirementBeneficiary('');
   };
 
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      const res = await fetch(`${API}/credits/${deleteTarget.credit_id}`, {
+        method: 'DELETE', credentials: 'include',
+      });
+      if (res.ok) {
+        toast.success(`Issuance of ${deleteTarget.credits_issued} tCO₂e deleted`);
+        setDeleteTarget(null);
+        fetchData();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.detail || 'Could not delete issuance');
+      }
+    } catch {
+      toast.error('Something went wrong');
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   const filteredCredits = statusFilter === 'all' 
     ? credits 
     : credits.filter(c => c.status === statusFilter);
