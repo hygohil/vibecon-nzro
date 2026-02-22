@@ -1141,12 +1141,18 @@ async def export_audit_log(request: Request, project_id: Optional[str] = None):
     query = {"project_id": {"$in": project_ids}, "status": {"$in": ["approved", "rejected"]}}
     if project_id:
         query["project_id"] = project_id
-    activities = await db.activities.find(query, {"_id": 0}).to_list(10000)
+    activities = await db.activities.find(query, {"_id": 0}).sort("approved_at", -1).to_list(10000)
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["activity_id", "action", "verifier_notes", "approved_at", "farmer_id", "tree_count"])
+    writer.writerow(["activity_id", "project_id", "project_name", "farmer_id", "farmer_name", "farmer_phone", "species", "tree_count", "action", "verifier_notes", "approved_at", "created_at"])
     for a in activities:
-        writer.writerow([a["activity_id"], a["status"], a.get("verifier_notes", ""), a.get("approved_at", ""), a["farmer_id"], a["tree_count"]])
+        writer.writerow([
+            a["activity_id"], a.get("project_id", ""), a.get("project_name", ""),
+            a["farmer_id"], a.get("farmer_name", ""), a.get("farmer_phone", ""),
+            a.get("species", ""), a["tree_count"],
+            a["status"], a.get("verifier_notes", ""),
+            a.get("approved_at", ""), a.get("created_at", "")
+        ])
     output.seek(0)
     return StreamingResponse(io.BytesIO(output.getvalue().encode()), media_type="text/csv", headers={"Content-Disposition": "attachment; filename=audit_log.csv"})
 
