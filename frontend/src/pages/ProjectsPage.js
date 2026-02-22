@@ -97,6 +97,34 @@ export default function ProjectsPage() {
     } catch { toast.error('Failed to delete'); }
   };
 
+  const handleEditOpen = (p) => {
+    setEditTarget(p);
+    setEditForm({ name: p.name, description: p.description || '', payout_rate: p.payout_rate });
+  };
+
+  const handleEditSave = async () => {
+    if (!editTarget) return;
+    if (!editForm.name.trim()) { toast.error('Project name is required'); return; }
+    if (!editForm.payout_rate || Number(editForm.payout_rate) <= 0) { toast.error('Payout rate must be a positive number'); return; }
+    setEditSubmitting(true);
+    try {
+      const res = await fetch(`${API}/projects/${editTarget.project_id}`, {
+        method: 'PUT', credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: editForm.name, description: editForm.description, payout_rate: Number(editForm.payout_rate) }),
+      });
+      if (res.ok) {
+        toast.success('Project updated — farmer payout estimates will reflect the new rate');
+        setEditTarget(null);
+        fetchProjects();
+      } else {
+        const err = await res.json().catch(() => ({}));
+        toast.error(err.detail || 'Failed to update project');
+      }
+    } catch { toast.error('Network error'); }
+    finally { setEditSubmitting(false); }
+  };
+
   if (loading) return <div className="flex items-center justify-center h-64"><div className="w-8 h-8 border-4 border-[#1A4D2E] border-t-transparent rounded-full animate-spin" /></div>;
 
   return (
