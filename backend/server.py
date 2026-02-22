@@ -1501,6 +1501,12 @@ async def export_audit_log(request: Request, project_id: Optional[str] = None):
     output.seek(0)
     return StreamingResponse(io.BytesIO(output.getvalue().encode()), media_type="text/csv", headers={"Content-Disposition": "attachment; filename=audit_log.csv"})
 
+@api_router.get("/static/workflow")
+async def serve_workflow_image():
+    """Serve the VanaLedger workflow diagram PNG."""
+    img_path = os.path.join(os.path.dirname(__file__), "static", "workflow.png")
+    return FileResponse(img_path, media_type="image/png", filename="VanaLedger_Workflow.png")
+
 # Include router
 app.include_router(api_router)
 
