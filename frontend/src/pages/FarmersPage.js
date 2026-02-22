@@ -292,6 +292,35 @@ export default function FarmersPage() {
         </div>
       </Card>
 
+      {/* Delete Confirmation */}
+      <AlertDialog open={!!deleteTarget} onOpenChange={open => { if (!open) setDeleteTarget(null); }}>
+        <AlertDialogContent data-testid="delete-farmer-dialog">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Farmer</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove <strong>{deleteTarget?.name}</strong>?
+              {deleteTarget?.total_trees > 0 && (
+                <span className="block mt-2 text-amber-600 font-medium">
+                  This will also delete all their plantation activities and ledger entries ({deleteTarget.total_trees} trees recorded).
+                </span>
+              )}
+              <span className="block mt-1 text-red-600 text-xs">This action cannot be undone.</span>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDelete}
+              disabled={deleting}
+              data-testid="confirm-delete-farmer-btn"
+              className="bg-red-600 hover:bg-red-700 text-white focus:ring-red-500"
+            >
+              {deleting ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Deleting...</> : 'Delete Farmer'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {/* Bulk Upload Modal */}
       <BulkUploadModal
         open={showBulkUpload}
