@@ -992,9 +992,16 @@ async def export_payout_csv(request: Request, project_id: Optional[str] = None):
     entries = await db.ledger.find(query, {"_id": 0}).to_list(10000)
     output = io.StringIO()
     writer = csv.writer(output)
-    writer.writerow(["farmer_id", "farmer_name", "phone", "upi_id", "approved_trees", "approved_credits_tCO2e", "payable_amount_INR", "paid_amount_INR"])
+    writer.writerow(["farmer_id", "farmer_name", "phone", "upi_id", "project_id", "project_name", "approved_trees", "approved_credits_tCO2e", "payable_amount_INR", "paid_amount_INR", "balance_INR"])
     for e in entries:
-        writer.writerow([e.get("farmer_id"), e.get("farmer_name"), e.get("farmer_phone"), e.get("upi_id", ""), e.get("approved_trees_total", 0), round(e.get("approved_credits_total", 0), 4), round(e.get("payable_amount", 0), 2), round(e.get("paid_amount", 0), 2)])
+        payable = round(e.get("payable_amount", 0), 2)
+        paid = round(e.get("paid_amount", 0), 2)
+        writer.writerow([
+            e.get("farmer_id"), e.get("farmer_name"), e.get("farmer_phone"), e.get("upi_id", ""),
+            e.get("project_id", ""), e.get("project_name", ""),
+            e.get("approved_trees_total", 0), round(e.get("approved_credits_total", 0), 4),
+            payable, paid, round(payable - paid, 2)
+        ])
     output.seek(0)
     return StreamingResponse(io.BytesIO(output.getvalue().encode()), media_type="text/csv", headers={"Content-Disposition": "attachment; filename=payout_ledger.csv"})
 
