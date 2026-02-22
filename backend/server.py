@@ -440,14 +440,35 @@ async def create_farmer(farmer: FarmerCreate, request: Request):
     return FarmerOut(**result)
 
 @api_router.get("/farmers", response_model=List[FarmerOut])
-async def list_farmers(request: Request, project_id: Optional[str] = None):
+async def list_farmers(request: Request, project_id: Optional[str] = None, page: int = 1, page_size: int = 10):
     user = await get_current_user(request)
-    user_projects = await db.projects.find({"user_id": user["user_id"]}, {"_id": 0, "project_id": 1}).to_list(1000)
+    user_projects = await db.projects.find({"user_id": user["user_id"]}, {"_id": 0}).to_list(1000)
     project_ids = [p["project_id"] for p in user_projects]
+    projects_map = {p["project_id"]: p for p in user_projects}
+    
     query = {"project_id": {"$in": project_ids}}
     if project_id:
         query["project_id"] = project_id
-    farmers = await db.farmers.find(query, {"_id": 0}).to_list(1000)
+    
+    # Count total for pagination
+    total_count = await db.farmers.count_documents(query)
+    
+    # Pagination with newest first (created_at DESC)
+    skip = (page - 1) * page_size
+    farmers = await db.farmers.find(query, {"_id": 0}).sort("created_at", -1).skip(skip).limit(page_size).to_list(page_size)
+    
+    # Calculate 1-year estimates for each farmer
+    for f in farmers:
+        project = projects_map.get(f["project_id"])
+        if project:
+            estimates = calculate_farmer_estimates(f, project)
+            f.update(estimates)
+        else:
+            f["estimated_credits_1y"] = 0.0
+            f["estimated_payout_1y"] = 0.0
+    
+    # Add pagination metadata to response header (optional)
+    # Could also return as wrapped response with {data, total, page, page_size}
     return [FarmerOut(**f) for f in farmers]
 
 @api_router.get("/farmers/{farmer_id}", response_model=FarmerOut)
