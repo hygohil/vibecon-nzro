@@ -287,7 +287,7 @@ export default function ProjectsPage() {
                     />
                     <Lock className="w-3 h-3 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
                   </div>
-                  <p className="text-xs text-gray-500 mt-1">Prevents repeated claims</p>
+                  <p className="text-xs text-gray-500 mt-1">Prevents repeated activities</p>
                 </div>
               </div>
 
