@@ -170,10 +170,19 @@ export default function ProjectsPage() {
             <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>Create Tree Project</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
+            {/* Disclaimer Banner */}
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+              <p className="text-xs text-amber-800">
+                <strong>Note:</strong> All values are estimates until verified. Issuance depends on monitoring evidence and verification.
+              </p>
+            </div>
+
             <div>
               <Label>Project Name *</Label>
               <Input data-testid="project-name-input" value={form.name} onChange={e => setForm({...form, name: e.target.value})} placeholder="e.g., Saurashtra Tree Revival" className="mt-1" />
             </div>
+
             <div>
               <Label>Region / State *</Label>
               <Combobox
@@ -187,49 +196,114 @@ export default function ProjectsPage() {
                 className="mt-1"
               />
             </div>
+
             <div>
-              <Label>Description</Label>
-              <Textarea data-testid="project-desc-input" value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="Brief description" className="mt-1" rows={2} />
+              <Label>Description (Optional)</Label>
+              <Textarea data-testid="project-desc-input" value={form.description} onChange={e => setForm({...form, description: e.target.value})} placeholder="Brief description of the project" className="mt-1" rows={2} />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+
+            {/* Payout Configuration */}
+            <div className="border-t pt-4">
+              <h3 className="text-sm font-semibold text-gray-700 mb-3">Payout Configuration</h3>
               <div>
-                <Label>Payout Rule</Label>
-                <Select value={form.payout_rule_type} onValueChange={v => setForm({...form, payout_rule_type: v})}>
-                  <SelectTrigger className="mt-1" data-testid="payout-rule-select"><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="per_tree">Per Tree (₹)</SelectItem>
-                    <SelectItem value="per_tco2e">Per tCO2e (₹)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label>Payout Rate (₹)</Label>
-                <Input data-testid="payout-rate-input" type="number" value={form.payout_rate} onChange={e => setForm({...form, payout_rate: e.target.value})} className="mt-1" />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Survival Rate</Label>
-                <Input data-testid="survival-rate-input" type="number" step="0.01" min="0" max="1" value={form.survival_rate} onChange={e => setForm({...form, survival_rate: e.target.value})} className="mt-1" />
-              </div>
-              <div>
-                <Label>Conservative Discount</Label>
-                <Input data-testid="discount-input" type="number" step="0.01" min="0" max="1" value={form.conservative_discount} onChange={e => setForm({...form, conservative_discount: e.target.value})} className="mt-1" />
+                <Label>Payout Rate (₹/tCO₂e) *</Label>
+                <Input
+                  data-testid="payout-rate-input"
+                  type="number"
+                  step="50"
+                  min="0"
+                  value={form.payout_rate}
+                  onChange={e => setForm({...form, payout_rate: e.target.value})}
+                  className="mt-1"
+                  placeholder="500"
+                />
+                <p className="text-xs text-gray-500 mt-1">Default market rate: ₹500 per tCO₂e (editable)</p>
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label>Max Trees/Acre</Label>
-                <Input data-testid="max-trees-input" type="number" value={form.max_trees_per_acre} onChange={e => setForm({...form, max_trees_per_acre: e.target.value})} className="mt-1" />
+
+            {/* Locked Conservative Parameters */}
+            <div className="border-t pt-4">
+              <div className="flex items-center gap-2 mb-3">
+                <Lock className="w-4 h-4 text-gray-500" />
+                <h3 className="text-sm font-semibold text-gray-700">Conservative MRV Settings</h3>
               </div>
-              <div>
-                <Label>Cooldown (days)</Label>
-                <Input data-testid="cooldown-input" type="number" value={form.cooldown_days} onChange={e => setForm({...form, cooldown_days: e.target.value})} className="mt-1" />
+              <p className="text-xs text-gray-600 mb-3">
+                Locked to maintain conservative MRV settings and prevent over-claiming.
+              </p>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <Label className="text-gray-600">Survival Rate</Label>
+                  <div className="relative mt-1">
+                    <Input
+                      type="number"
+                      value={LOCKED_PARAMS.survival_rate}
+                      disabled
+                      className="bg-gray-50 text-gray-600 cursor-not-allowed"
+                    />
+                    <Lock className="w-3 h-3 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">70% (locked)</p>
+                </div>
+
+                <div>
+                  <Label className="text-gray-600">Conservative Discount</Label>
+                  <div className="relative mt-1">
+                    <Input
+                      type="number"
+                      value={LOCKED_PARAMS.conservative_discount}
+                      disabled
+                      className="bg-gray-50 text-gray-600 cursor-not-allowed"
+                    />
+                    <Lock className="w-3 h-3 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">20% (locked)</p>
+                </div>
               </div>
-            </div>
-            <div>
-              <Label>Monitoring Frequency (days)</Label>
-              <Input data-testid="monitoring-freq-input" type="number" value={form.monitoring_frequency_days} onChange={e => setForm({...form, monitoring_frequency_days: e.target.value})} className="mt-1" />
+
+              <div className="grid grid-cols-2 gap-3 mt-3">
+                <div>
+                  <Label className="text-gray-600">Max Trees/Acre</Label>
+                  <div className="relative mt-1">
+                    <Input
+                      type="number"
+                      value={LOCKED_PARAMS.max_trees_per_acre}
+                      disabled
+                      className="bg-gray-50 text-gray-600 cursor-not-allowed"
+                    />
+                    <Lock className="w-3 h-3 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">400 (locked)</p>
+                </div>
+
+                <div>
+                  <Label className="text-gray-600">Cooldown (days)</Label>
+                  <div className="relative mt-1">
+                    <Input
+                      type="number"
+                      value={LOCKED_PARAMS.cooldown_days}
+                      disabled
+                      className="bg-gray-50 text-gray-600 cursor-not-allowed"
+                    />
+                    <Lock className="w-3 h-3 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Prevents repeated claims</p>
+                </div>
+              </div>
+
+              <div className="mt-3">
+                <Label className="text-gray-600">Monitoring Frequency (days)</Label>
+                <div className="relative mt-1">
+                  <Input
+                    type="number"
+                    value={LOCKED_PARAMS.monitoring_frequency_days}
+                    disabled
+                    className="bg-gray-50 text-gray-600 cursor-not-allowed"
+                  />
+                  <Lock className="w-3 h-3 text-gray-400 absolute right-3 top-1/2 -translate-y-1/2" />
+                </div>
+                <p className="text-xs text-gray-500 mt-1">Standard 90-day survival verification cycle</p>
+              </div>
             </div>
           </div>
           <DialogFooter>
