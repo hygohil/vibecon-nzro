@@ -50,7 +50,7 @@ export default function DashboardPage() {
     <div data-testid="dashboard-page" className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-[#1F2937] tracking-tight" style={{ fontFamily: 'Manrope, sans-serif' }}>Dashboard</h1>
-        <p className="text-[#6B7280] mt-1">Overview of your tree plantation programs</p>
+        <p className="text-[#6B7280] mt-1">Overview of your tree plantation projects</p>
       </div>
 
       {/* Bento Grid Metrics */}
