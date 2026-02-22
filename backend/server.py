@@ -363,12 +363,62 @@ async def delete_project(project_id: str, request: Request):
 
 # ─── Farmers ───
 
+# ─── Farmers ───
+
+# Annual CO2 estimate constant (kg per tree per year)
+ESTIMATED_CO2_KG_PER_TREE_PER_YEAR = 20.0
+
+def calculate_farmer_estimates(farmer: dict, project: dict) -> dict:
+    """
+    Calculate 1-year estimated credits and payout for a farmer
+    based on their approved trees, land area, and project parameters.
+    """
+    acres = farmer.get("acres", 0) or 0
+    approved_trees = farmer.get("approved_trees", 0)
+    
+    # Get project parameters
+    max_trees_per_acre = project.get("max_trees_per_acre", 400)
+    survival_rate = project.get("survival_rate", 0.7)
+    conservative_discount = project.get("conservative_discount", 0.2)
+    payout_rate = project.get("payout_rate", 500.0)
+    
+    # Calculate max allowed trees based on land area
+    max_allowed_trees = acres * max_trees_per_acre if acres > 0 else approved_trees
+    
+    # Effective trees for estimate (capped by land capacity)
+    effective_trees = min(approved_trees, max_allowed_trees)
+    
+    # Convert kg to tonnes (tCO2e per tree per year)
+    tco2_per_tree_per_year = ESTIMATED_CO2_KG_PER_TREE_PER_YEAR / 1000.0
+    
+    # Calculate estimated credits for 1 year
+    estimated_credits_1y = effective_trees * tco2_per_tree_per_year * survival_rate * (1 - conservative_discount)
+    
+    # Calculate estimated payout
+    estimated_payout_1y = estimated_credits_1y * payout_rate
+    
+    return {
+        "estimated_credits_1y": round(estimated_credits_1y, 4),
+        "estimated_payout_1y": round(estimated_payout_1y, 0)  # Round to nearest rupee
+    }
+
 @api_router.post("/farmers", response_model=FarmerOut)
 async def create_farmer(farmer: FarmerCreate, request: Request):
     user = await get_current_user(request)
+    
+    # Validate land_type
+    if farmer.land_type not in ["owned", "leased"]:
+        raise HTTPException(status_code=400, detail="land_type must be 'owned' or 'leased'")
+    
+    # Check if phone number already exists (uniqueness check)
+    existing = await db.farmers.find_one({"phone": farmer.phone}, {"_id": 0})
+    if existing:
+        raise HTTPException(status_code=409, detail="This mobile number is already registered")
+    
     project = await db.projects.find_one({"project_id": farmer.project_id, "user_id": user["user_id"]}, {"_id": 0})
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
+    
     doc = farmer.model_dump()
     doc["farmer_id"] = f"farmer_{uuid.uuid4().hex[:10]}"
     doc["project_name"] = project["name"]
@@ -377,9 +427,16 @@ async def create_farmer(farmer: FarmerCreate, request: Request):
     doc["approved_trees"] = 0
     doc["estimated_credits"] = 0.0
     doc["total_payout"] = 0.0
+    doc["land_type"] = farmer.land_type.lower()  # Normalize to lowercase
     doc["created_at"] = datetime.now(timezone.utc).isoformat()
+    
     await db.farmers.insert_one(doc)
     result = await db.farmers.find_one({"farmer_id": doc["farmer_id"]}, {"_id": 0})
+    
+    # Calculate 1-year estimates
+    estimates = calculate_farmer_estimates(result, project)
+    result.update(estimates)
+    
     return FarmerOut(**result)
 
 @api_router.get("/farmers", response_model=List[FarmerOut])
