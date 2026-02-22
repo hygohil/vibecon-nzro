@@ -61,51 +61,65 @@ export default function FarmersPage() {
   };
 
   const handleCreate = async () => {
+    // Clear previous phone error
+    setPhoneError('');
+    
+    // Validate required fields
     if (!form.name || !form.phone || !form.project_id) {
-      toast.error('Fill all required fields'); 
+      toast.error('Please fill all required fields'); 
       return;
     }
     
-    // Validate phone number format
+    // Validate phone format (10 digits)
     if (!validatePhoneNumber(form.phone)) {
-      toast.error('Phone number must be 10 digits');
+      setPhoneError('Phone number must be 10 digits');
       return;
     }
     
-    if (phoneExists) {
-      toast.error('This mobile number is already registered');
-      return;
-    }
+    setSubmitting(true);
     
     try {
       const res = await fetch(`${API}/farmers`, {
         method: 'POST', 
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...form, acres: form.acres ? Number(form.acres) : null }),
+        body: JSON.stringify({ 
+          ...form, 
+          acres: form.acres ? Number(form.acres) : null 
+        }),
       });
       
       if (res.ok) {
-        toast.success('Farmer added successfully');
+        // Success - farmer created
+        toast.success('Farmer onboarded successfully');
         setShowCreate(false);
         setPage(1); // Reset to first page
         fetchData();
         setForm({ name: '', phone: '', land_type: 'owned', acres: '', upi_id: '', project_id: '' });
-        setPhoneExists(false);
+        setPhoneError('');
+      } else if (res.status === 409) {
+        // Duplicate phone number
+        const err = await res.json().catch(() => ({}));
+        setPhoneError('This mobile number is already registered');
+        // Don't close modal - let user correct the phone number
       } else {
-        const err = await res.json();
-        // Handle specific error cases
-        if (res.status === 409 || (err.detail && err.detail.includes('already registered'))) {
-          toast.error('This mobile number is already registered');
+        // Other server errors
+        const err = await res.json().catch(() => ({}));
+        
+        // Check if error message indicates duplicate
+        if (err.detail && err.detail.toLowerCase().includes('already registered')) {
+          setPhoneError('This mobile number is already registered');
         } else if (err.detail) {
           toast.error(err.detail);
         } else {
-          toast.error('Failed to add farmer');
+          toast.error('Unable to add farmer right now. Please try again.');
         }
       }
     } catch (error) {
       console.error('Error adding farmer:', error);
-      toast.error('Failed to add farmer. Please try again.');
+      toast.error('Something went wrong. Please try again.');
+    } finally {
+      setSubmitting(false);
     }
   };
 
