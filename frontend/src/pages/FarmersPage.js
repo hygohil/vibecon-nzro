@@ -27,6 +27,7 @@ export default function FarmersPage() {
   const [totalCount, setTotalCount] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [phoneError, setPhoneError] = useState('');
+  const [showBulkUpload, setShowBulkUpload] = useState(false);
   const [form, setForm] = useState({
     name: '', phone: '',
     land_type: 'owned', acres: '', upi_id: '', project_id: ''
