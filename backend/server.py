@@ -403,34 +403,37 @@ def calculate_farmer_estimates(farmer: dict, project: dict) -> dict:
     """
     Calculate 1-year estimated credits and payout for a farmer
     based on their approved trees, land area, and project parameters.
+    Respects payout_rule_type: 'per_tree' or 'per_credit'.
     """
     acres = farmer.get("acres", 0) or 0
     approved_trees = farmer.get("approved_trees", 0)
-    
+
     # Get project parameters
     max_trees_per_acre = project.get("max_trees_per_acre", 400)
     survival_rate = project.get("survival_rate", 0.7)
     conservative_discount = project.get("conservative_discount", 0.2)
     payout_rate = project.get("payout_rate", 500.0)
-    
+    payout_rule_type = project.get("payout_rule_type", "per_credit")
+
     # Calculate max allowed trees based on land area
     max_allowed_trees = acres * max_trees_per_acre if acres > 0 else approved_trees
-    
+
     # Effective trees for estimate (capped by land capacity)
     effective_trees = min(approved_trees, max_allowed_trees)
-    
-    # Convert kg to tonnes (tCO2e per tree per year)
+
+    # tCO2e credits: always calculated for display purposes
     tco2_per_tree_per_year = ESTIMATED_CO2_KG_PER_TREE_PER_YEAR / 1000.0
-    
-    # Calculate estimated credits for 1 year
     estimated_credits_1y = effective_trees * tco2_per_tree_per_year * survival_rate * (1 - conservative_discount)
-    
-    # Calculate estimated payout
-    estimated_payout_1y = estimated_credits_1y * payout_rate
-    
+
+    # Payout depends on rule type
+    if payout_rule_type == "per_tree":
+        estimated_payout_1y = effective_trees * payout_rate
+    else:
+        estimated_payout_1y = estimated_credits_1y * payout_rate
+
     return {
         "estimated_credits_1y": round(estimated_credits_1y, 4),
-        "estimated_payout_1y": round(estimated_payout_1y, 0)  # Round to nearest rupee
+        "estimated_payout_1y": round(estimated_payout_1y, 0)
     }
 
 @api_router.post("/farmers", response_model=FarmerOut)
