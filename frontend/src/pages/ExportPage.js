@@ -104,8 +104,8 @@ export default function ExportPage() {
         <p className="text-[#6B7280] mt-1">Generate MRV-ready evidence packs and project documentation</p>
       </div>
 
-      {/* Disactivityer */}
-      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3" data-testid="export-disactivityer">
+      {/* Disclaimer */}
+      <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3" data-testid="export-disclaimer">
         <Leaf className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
         <div>
           <p className="text-sm font-medium text-amber-800">Estimated Units — Not Issued Credits</p>
