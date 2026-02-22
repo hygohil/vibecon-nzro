@@ -25,8 +25,8 @@ export default function FarmersPage() {
   const [page, setPage] = useState(1);
   const [pageSize] = useState(10);
   const [totalCount, setTotalCount] = useState(0);
-  const [phoneCheckLoading, setPhoneCheckLoading] = useState(false);
-  const [phoneExists, setPhoneExists] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [phoneError, setPhoneError] = useState('');
   const [form, setForm] = useState({
     name: '', phone: '',
     land_type: 'owned', acres: '', upi_id: '', project_id: ''
@@ -52,33 +52,6 @@ export default function FarmersPage() {
   };
 
   useEffect(() => { fetchData(); }, [page]);
-  
-  const checkPhoneUniqueness = async (phone) => {
-    if (!phone || phone.length < 10) {
-      setPhoneExists(false);
-      return;
-    }
-    
-    setPhoneCheckLoading(true);
-    try {
-      const res = await fetch(`${API}/farmers/check-phone`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phone }),
-      });
-      if (res.ok) {
-        const data = await res.json();
-        setPhoneExists(data.exists);
-        if (data.exists) {
-          toast.error('This mobile number is already registered');
-        }
-      }
-    } catch (e) {
-      console.error('Error checking phone:', e);
-    }
-    setPhoneCheckLoading(false);
-  };
 
   const validatePhoneNumber = (phone) => {
     // Remove country code and special characters to get just digits
