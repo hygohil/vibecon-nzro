@@ -250,10 +250,27 @@ export default function FarmersPage() {
               <PhoneInput 
                 data-testid="farmer-phone-input" 
                 value={form.phone} 
-                onChange={e => setForm({...form, phone: e.target.value})} 
+                onChange={(e) => {
+                  const phone = e.target.value;
+                  setForm({...form, phone});
+                  if (phone.length >= 10) {
+                    checkPhoneUniqueness(phone);
+                  } else {
+                    setPhoneExists(false);
+                  }
+                }}
                 placeholder="Enter phone number"
-                className="mt-1" 
+                className={`mt-1 ${phoneExists ? 'border-red-500' : ''}`}
               />
+              {phoneCheckLoading && (
+                <p className="text-xs text-gray-500 mt-1">Checking...</p>
+              )}
+              {phoneExists && (
+                <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  This mobile number is already registered
+                </p>
+              )}
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
