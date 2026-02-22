@@ -266,35 +266,22 @@ export default function FarmersPage() {
                 data-testid="farmer-phone-input" 
                 value={form.phone} 
                 onChange={(e) => {
-                  const phone = e.target.value;
-                  setForm({...form, phone});
-                  if (phone.length >= 10) {
-                    checkPhoneUniqueness(phone);
-                  } else {
-                    setPhoneExists(false);
-                  }
+                  setForm({...form, phone: e.target.value});
+                  setPhoneError('');
                 }}
                 placeholder="Enter 10-digit mobile number"
-                className={`mt-1 ${phoneExists ? 'border-red-500' : ''} ${form.phone && !validatePhoneNumber(form.phone) ? 'border-yellow-500' : ''}`}
+                className={`mt-1 ${phoneError ? 'border-red-500' : form.phone && !validatePhoneNumber(form.phone) ? 'border-yellow-500' : ''}`}
               />
-              {phoneCheckLoading && (
-                <p className="text-xs text-gray-500 mt-1">Checking availability...</p>
-              )}
-              {phoneExists && (
+              {phoneError && (
                 <p className="text-xs text-red-600 mt-1 flex items-center gap-1">
                   <AlertCircle className="w-3 h-3" />
-                  This mobile number is already registered
+                  {phoneError}
                 </p>
               )}
-              {form.phone && !validatePhoneNumber(form.phone) && !phoneExists && (
+              {!phoneError && form.phone && !validatePhoneNumber(form.phone) && (
                 <p className="text-xs text-yellow-700 mt-1 flex items-center gap-1">
                   <AlertCircle className="w-3 h-3" />
                   Phone number must be 10 digits
-                </p>
-              )}
-              {form.phone && validatePhoneNumber(form.phone) && !phoneExists && !phoneCheckLoading && (
-                <p className="text-xs text-green-700 mt-1 flex items-center gap-1">
-                  ✓ Valid phone number
                 </p>
               )}
             </div>
