@@ -477,7 +477,42 @@ async def get_farmer(farmer_id: str, request: Request):
     farmer = await db.farmers.find_one({"farmer_id": farmer_id}, {"_id": 0})
     if not farmer:
         raise HTTPException(status_code=404, detail="Farmer not found")
+    
+    # Calculate 1-year estimates
+    project = await db.projects.find_one({"project_id": farmer.get("project_id")}, {"_id": 0})
+    if project:
+        estimates = calculate_farmer_estimates(farmer, project)
+        farmer.update(estimates)
+    else:
+        farmer["estimated_credits_1y"] = 0.0
+        farmer["estimated_payout_1y"] = 0.0
+    
     return FarmerOut(**farmer)
+
+@api_router.get("/farmers/count/total")
+async def get_farmers_count(request: Request, project_id: Optional[str] = None):
+    """Get total count of farmers for pagination"""
+    user = await get_current_user(request)
+    user_projects = await db.projects.find({"user_id": user["user_id"]}, {"_id": 0, "project_id": 1}).to_list(1000)
+    project_ids = [p["project_id"] for p in user_projects]
+    query = {"project_id": {"$in": project_ids}}
+    if project_id:
+        query["project_id"] = project_id
+    total = await db.farmers.count_documents(query)
+    return {"total": total}
+
+@api_router.post("/farmers/check-phone")
+async def check_phone_uniqueness(body: dict, request: Request):
+    """Check if phone number is already registered"""
+    _ = await get_current_user(request)  # Authentication check
+    phone = body.get("phone")
+    if not phone:
+        raise HTTPException(status_code=400, detail="phone is required")
+    
+    existing = await db.farmers.find_one({"phone": phone}, {"_id": 0, "farmer_id": 1, "name": 1})
+    if existing:
+        return {"exists": True, "message": "This mobile number is already registered"}
+    return {"exists": False}
 
 # ─── Activities (formerly Claims) ───
 
