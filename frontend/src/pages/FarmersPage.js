@@ -192,6 +192,46 @@ export default function FarmersPage() {
             </TableBody>
           </Table>
         </CardContent>
+        
+        {/* Pagination Controls */}
+        <div className="border-t px-6 py-4 flex items-center justify-between">
+          <div className="text-sm text-gray-600">
+            Showing {Math.min((page - 1) * pageSize + 1, totalCount)}–{Math.min(page * pageSize, totalCount)} of {totalCount}
+          </div>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="h-8"
+            >
+              <ChevronLeft className="w-4 h-4" />
+              Previous
+            </Button>
+            <div className="text-sm text-gray-600">
+              Page {page} of {Math.ceil(totalCount / pageSize)}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setPage(p => Math.min(Math.ceil(totalCount / pageSize), p + 1))}
+              disabled={page >= Math.ceil(totalCount / pageSize)}
+              className="h-8"
+            >
+              Next
+              <ChevronRight className="w-4 h-4" />
+            </Button>
+          </div>
+        </div>
+        
+        {/* Disclaimer */}
+        <div className="bg-amber-50 border-t border-amber-200 px-6 py-3">
+          <p className="text-xs text-amber-800 flex items-start gap-2">
+            <AlertCircle className="w-4 h-4 mt-0.5 flex-shrink-0" />
+            <span><strong>Estimates only.</strong> Actual issuance and payout depend on monitoring, verification, and program rules.</span>
+          </p>
+        </div>
       </Card>
 
       {/* Create Dialog */}
