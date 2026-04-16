@@ -300,7 +300,7 @@ export default function VerificationPage() {
                       return (
                         <div key={q.id} className="text-xs" data-testid={`review-survey-${q.id}`}>
                           <p className="text-[#6B7280] font-medium mb-0.5">{q.label}</p>
-                          <p className="text-[#1F2937] font-semibold pl-3">{answer}</p>
+                          <p className="text-[#1F2937] font-semibold pl-3"><span className="text-[#1A4D2E]">Ans:</span> {answer}</p>
                         </div>
                       );
                     })}
