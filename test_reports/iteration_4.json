@@ -1,0 +1,52 @@
+{
+  "summary": "Tested Survey Questions feature for Add Activity form. All 9 survey questions are correctly implemented with radio buttons, validation, and data persistence. Backend: 7/7 tests passed (100%). Frontend: All 8 feature points verified working.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_survey_questions.py",
+    "/app/test_reports/pytest/survey_questions_results.xml"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "Survey implementation is clean and follows best practices",
+    "SURVEY_QUESTIONS const is well-structured with id, label, options, and optional description",
+    "Q9 correctly includes description text for program participation agreement",
+    "Form validation properly checks all 9 questions before submission",
+    "Survey section auto-expands when validation fails - good UX",
+    "Backend ActivityCreate and ActivityOut models correctly include survey_responses: Optional[dict]",
+    "Survey responses are persisted to MongoDB and returned in GET /api/activities"
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_survey_questions.py"
+  ],
+  "success_rate": {
+    "backend": "100% (7/7 tests passed)",
+    "frontend": "100% (all 8 feature points verified working)"
+  },
+  "test_credentials": "demo_mode=true cookie; Demo user: demo@aggregatoros.com",
+  "seed_data_creation": "Created test activities with survey responses during testing: TEST_survey_activity, TEST_survey_get_activity, TEST_no_survey_activity, TEST_empty_survey_activity, TEST_partial_survey_activity, TEST_persistence_survey_activity, TEST_custom_survey_values. Also created 1 activity via UI (chirag, 25 Neem trees) with full survey responses.",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Survey Questions feature is COMPLETE and working. All 9 questions (Q1-Q9) are implemented with correct radio button options. Q9 has description text for program participation agreement. Form validation requires all 9 answers before submission. Survey section has collapsible toggle showing X/9 answered count. Survey responses are stored in backend and displayed in Review dialog. Backend tests verify POST and GET endpoints correctly handle survey_responses field.",
+  "features_tested": {
+    "1_add_activity_dialog_survey_section": "PASS - Farmer Survey collapsible section visible with (0/9 answered) indicator",
+    "2_all_9_questions_present": "PASS - Q1 main_crop, Q2 crops_per_year, Q3 crop_residue, Q4 land_preparation, Q5 fertilizer_level, Q6 irrigation_type, Q7 compost_usage, Q8 water_management, Q9 participation_agreement",
+    "3_radio_button_options": "PASS - Each question has correct single-select radio button options",
+    "4_q9_description_text": "PASS - Q9 shows program participation agreement description with bullet points",
+    "5_validation_requires_all_9": "PASS - Toast error 'Please answer all survey questions (9 remaining)' shown when submitting without answers",
+    "6_survey_auto_expands_on_validation": "PASS - Survey section auto-expands when validation fails",
+    "7_answered_count_indicator": "PASS - Toggle shows (X/9 answered) count that updates as questions are answered",
+    "8_submit_with_all_answers": "PASS - Activity submitted successfully with all 9 survey responses",
+    "9_review_dialog_shows_survey": "PASS - Review Activity dialog shows SURVEY RESPONSES section with all 9 answers (Q1-Q9)",
+    "10_backend_post_survey_responses": "PASS - POST /api/activities correctly stores survey_responses field",
+    "11_backend_get_survey_responses": "PASS - GET /api/activities returns survey_responses field",
+    "12_backward_compatibility": "PASS - Activities can be created without survey_responses (optional field)"
+  }
+}

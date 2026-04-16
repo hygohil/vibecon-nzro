@@ -131,6 +131,7 @@ class ActivityCreate(BaseModel):
     lng: Optional[float] = None
     photo_urls: List[str] = []
     notes: Optional[str] = ""
+    survey_responses: Optional[dict] = None
 
 # RENAMED: ClaimOut → ActivityOut, claim_id → activity_id, REMOVED: farmer_village, program_id → project_id, program_name → project_name
 class ActivityOut(BaseModel):
@@ -152,6 +153,7 @@ class ActivityOut(BaseModel):
     estimated_credits: float = 0.0
     estimated_payout: float = 0.0
     verifier_notes: Optional[str] = ""
+    survey_responses: Optional[dict] = None
     created_at: Optional[str] = None
     approved_at: Optional[str] = None
 

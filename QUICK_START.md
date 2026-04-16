@@ -151,7 +151,7 @@ CORS_ORIGINS=*
 
 **Frontend (.env):**
 ```
-REACT_APP_BACKEND_URL=https://vanaledger-refactor.preview.emergentagent.com
+REACT_APP_BACKEND_URL=https://ledger-mgmt-preview.preview.emergentagent.com
 ```
 
 **⚠️ IMPORTANT:** Never hardcode these values in code. Always use environment variables.

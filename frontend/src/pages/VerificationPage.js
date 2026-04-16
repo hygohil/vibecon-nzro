@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ClipboardCheck, Check, X, MessageCircle, MapPin, Image as ImageIcon, TreePine, Plus, Eye } from 'lucide-react';
+import { ClipboardCheck, Check, X, MessageCircle, MapPin, Image as ImageIcon, TreePine, Plus, Eye, ChevronDown, ChevronUp } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 import { Button } from '../components/ui/button';
 import { Input } from '../components/ui/input';
@@ -9,6 +9,7 @@ import { Textarea } from '../components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '../components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
+import { RadioGroup, RadioGroupItem } from '../components/ui/radio-group';
 import { toast } from 'sonner';
 
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
@@ -21,6 +22,57 @@ const statusColors = {
   needs_info: 'bg-blue-50 text-blue-700 border-blue-200',
 };
 
+const SURVEY_QUESTIONS = [
+  {
+    id: 'main_crop',
+    label: 'Q1. What is your main crop?',
+    options: ['Rice', 'Wheat', 'Maize', 'Cotton', 'Pulses', 'Millets', 'Mixed crops', 'Other'],
+  },
+  {
+    id: 'crops_per_year',
+    label: 'Q2. How many crops do you grow per year?',
+    options: ['1', '2', '3 or more'],
+  },
+  {
+    id: 'crop_residue',
+    label: 'Q3. What do you usually do with crop residue after harvest?',
+    options: ['Burn it', 'Remove it', 'Mix it into soil', 'Leave it as mulch'],
+  },
+  {
+    id: 'land_preparation',
+    label: 'Q4. How do you usually prepare your land before sowing?',
+    options: ['Heavy ploughing (3+ times)', 'Medium ploughing (1–2 times)', 'Light tillage', 'No tillage'],
+  },
+  {
+    id: 'fertilizer_level',
+    label: 'Q5. What level of chemical fertilizer do you use?',
+    options: ['High', 'Medium', 'Low', 'None'],
+  },
+  {
+    id: 'irrigation_type',
+    label: 'Q6. What type of irrigation do you mainly use?',
+    options: ['Flood irrigation', 'Sprinkler', 'Drip', 'Rainfed'],
+  },
+  {
+    id: 'compost_usage',
+    label: 'Q7. Do you use compost or manure?',
+    options: ['Yes', 'No'],
+  },
+  {
+    id: 'water_management',
+    label: 'Q8. How is water usually managed in your rice field?',
+    options: ['Continuous flooding', 'Intermittent (sometimes dry)', 'Rainfed', 'Not sure'],
+  },
+  {
+    id: 'participation_agreement',
+    label: 'Q9. Program Participation Agreement',
+    description: 'To participate in the carbon program, I agree to:\n• avoid crop residue burning where required\n• adopt improved farming practices as guided\n• allow farm visits, monitoring, and data collection\n• allow third-party verification\n• provide accurate information',
+    options: ['I Agree and want to participate', 'I Do Not Agree'],
+  },
+];
+
+const emptySurvey = () => SURVEY_QUESTIONS.reduce((acc, q) => ({ ...acc, [q.id]: '' }), {});
+
 export default function VerificationPage() {
   const [activities, setActivities] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -30,18 +82,20 @@ export default function VerificationPage() {
   const [verifierNotes, setVerifierNotes] = useState('');
   const [tab, setTab] = useState('pending');
   const [showCreate, setShowCreate] = useState(false);
+  const [surveyExpanded, setSurveyExpanded] = useState(false);
   const [form, setForm] = useState({
     farmer_id: '', project_id: '', tree_count: '', species: 'Neem',
     planted_date: new Date().toISOString().slice(0, 10),
     lat: '', lng: '', photo_urls: ['', ''], notes: ''
   });
+  const [survey, setSurvey] = useState(emptySurvey());
 
   const fetchData = async () => {
     try {
       const [cRes, pRes, fRes] = await Promise.all([
         fetch(`${API}/activities`, { credentials: 'include' }),
         fetch(`${API}/projects`, { credentials: 'include' }),
-        fetch(`${API}/farmers`, { credentials: 'include' }),
+        fetch(`${API}/farmers?page_size=9999`, { credentials: 'include' }),
       ]);
       if (cRes.ok) setActivities(await cRes.json());
       if (pRes.ok) setProjects(await pRes.json());
@@ -72,6 +126,13 @@ export default function VerificationPage() {
     if (!form.farmer_id || !form.project_id || !form.tree_count) {
       toast.error('Fill required fields'); return;
     }
+    // Check if all survey questions are answered
+    const unanswered = SURVEY_QUESTIONS.filter(q => !survey[q.id]);
+    if (unanswered.length > 0) {
+      toast.error(`Please answer all survey questions (${unanswered.length} remaining)`);
+      setSurveyExpanded(true);
+      return;
+    }
     try {
       const photos = form.photo_urls.filter(u => u.trim());
       const res = await fetch(`${API}/activities`, {
@@ -83,6 +144,7 @@ export default function VerificationPage() {
           lat: form.lat ? Number(form.lat) : null,
           lng: form.lng ? Number(form.lng) : null,
           photo_urls: photos,
+          survey_responses: survey,
         }),
       });
       if (res.ok) {
@@ -90,6 +152,8 @@ export default function VerificationPage() {
         setShowCreate(false);
         fetchData();
         setForm({ farmer_id: '', project_id: '', tree_count: '', species: 'Neem', planted_date: new Date().toISOString().slice(0, 10), lat: '', lng: '', photo_urls: ['', ''], notes: '' });
+        setSurvey(emptySurvey());
+        setSurveyExpanded(false);
       } else {
         const err = await res.json();
         toast.error(err.detail || 'Failed');
@@ -225,13 +289,32 @@ export default function VerificationPage() {
                 </div>
               )}
 
+              {/* Survey Responses in Review */}
+              {selectedActivity.survey_responses && Object.keys(selectedActivity.survey_responses).length > 0 && (
+                <div className="p-4 bg-[#F0F8F0] rounded-lg border border-[#1A4D2E]/10">
+                  <p className="text-xs font-semibold text-[#1A4D2E] mb-3 uppercase tracking-wide">Survey Responses</p>
+                  <div className="space-y-2">
+                    {SURVEY_QUESTIONS.map(q => {
+                      const answer = selectedActivity.survey_responses[q.id];
+                      if (!answer) return null;
+                      return (
+                        <div key={q.id} className="flex gap-2 text-xs">
+                          <span className="text-[#6B7280] shrink-0 font-medium">{q.label.split('.')[0]}.</span>
+                          <span className="text-[#1F2937]">{answer}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Verifier Notes */}
               <div>
                 <Label>Verifier Notes</Label>
                 <Textarea data-testid="verifier-notes" value={verifierNotes} onChange={e => setVerifierNotes(e.target.value)} placeholder="Add notes for this activity..." className="mt-1" rows={3} />
               </div>
 
-              {/* Disactivityer */}
+              {/* Disclaimer */}
               <div className="p-3 bg-amber-50 rounded-lg border border-amber-200 text-xs text-amber-700">
                 Estimated units — not issued credits. Final issuance depends on verification + registry rules.
               </div>
@@ -261,8 +344,11 @@ export default function VerificationPage() {
       </Dialog>
 
       {/* Create Activity Dialog */}
-      <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto" data-testid="create-activity-dialog">
+      <Dialog open={showCreate} onOpenChange={(open) => {
+        setShowCreate(open);
+        if (!open) { setSurveyExpanded(false); }
+      }}>
+        <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto" data-testid="create-activity-dialog">
           <DialogHeader>
             <DialogTitle style={{ fontFamily: 'Manrope, sans-serif' }}>Submit Activity</DialogTitle>
           </DialogHeader>
@@ -327,6 +413,60 @@ export default function VerificationPage() {
             <div>
               <Label>Notes</Label>
               <Textarea data-testid="activity-notes" value={form.notes} onChange={e => setForm({...form, notes: e.target.value})} placeholder="Optional notes" className="mt-1" rows={2} />
+            </div>
+
+            {/* Survey Section */}
+            <div className="border border-[#1A4D2E]/15 rounded-lg overflow-hidden mt-2">
+              <button
+                type="button"
+                onClick={() => setSurveyExpanded(!surveyExpanded)}
+                data-testid="survey-toggle-btn"
+                className="w-full flex items-center justify-between px-4 py-3 bg-[#F0F8F0] hover:bg-[#E5F2E5] transition-colors text-left"
+              >
+                <div className="flex items-center gap-2">
+                  <ClipboardCheck className="w-4 h-4 text-[#1A4D2E]" />
+                  <span className="text-sm font-semibold text-[#1A4D2E]" style={{ fontFamily: 'Manrope, sans-serif' }}>Farmer Survey *</span>
+                  <span className="text-[10px] text-[#6B7280]">
+                    ({SURVEY_QUESTIONS.filter(q => survey[q.id]).length}/{SURVEY_QUESTIONS.length} answered)
+                  </span>
+                </div>
+                {surveyExpanded ? <ChevronUp className="w-4 h-4 text-[#1A4D2E]" /> : <ChevronDown className="w-4 h-4 text-[#1A4D2E]" />}
+              </button>
+
+              {surveyExpanded && (
+                <div className="p-4 space-y-5 bg-white" data-testid="survey-section">
+                  {SURVEY_QUESTIONS.map((q, qIdx) => (
+                    <div key={q.id} data-testid={`survey-q-${q.id}`}>
+                      <p className="text-sm font-medium text-[#1F2937] mb-1">{q.label}</p>
+                      {q.description && (
+                        <p className="text-xs text-[#6B7280] mb-2 whitespace-pre-line leading-relaxed">{q.description}</p>
+                      )}
+                      <RadioGroup
+                        value={survey[q.id]}
+                        onValueChange={(val) => setSurvey(prev => ({ ...prev, [q.id]: val }))}
+                        className="grid gap-1.5 mt-1"
+                      >
+                        {q.options.map((opt) => (
+                          <label
+                            key={opt}
+                            className={`flex items-center gap-2.5 px-3 py-2 rounded-md cursor-pointer border transition-colors text-sm ${
+                              survey[q.id] === opt
+                                ? 'border-[#1A4D2E]/40 bg-[#F0F8F0]'
+                                : 'border-transparent hover:bg-gray-50'
+                            }`}
+                          >
+                            <RadioGroupItem
+                              value={opt}
+                              data-testid={`survey-${q.id}-${opt.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                            />
+                            <span className="text-[#374151]">{opt}</span>
+                          </label>
+                        ))}
+                      </RadioGroup>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           <DialogFooter>
