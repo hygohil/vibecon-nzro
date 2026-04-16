@@ -25,7 +25,8 @@ VanaLedger is a carbon credit management platform for agricultural projects. The
 - Export endpoints (activity CSV, payout CSV, calculation sheet, PDF dossier)
 - Dashboard stats
 - Demo mode authentication
-- **[2026-04-16] Survey Questions in Add Activity** — 9 farmer survey questions (main crop, crops/year, crop residue, land preparation, fertilizer, irrigation, compost, water management, program participation agreement) with single-answer radio buttons, collapsible UI, validation requiring all 9 answers, stored in backend `survey_responses` field, displayed in Review dialog
+- **[2026-04-16] Survey Questions in Add Activity** — 9 farmer survey questions (main crop, crops/year, crop residue, land preparation, fertilizer, irrigation, compost, water management, program participation agreement) with single-answer radio buttons, collapsible UI, validation requiring all 9 answers, stored in backend `survey_responses` field, displayed in Review dialog with full question text + answer
+- **[2026-04-16] Backfilled old activities** — All 228 existing activities backfilled with randomized survey responses via POST /api/activities/backfill-survey endpoint
 
 ### Known Issues (Pending)
 - P0: Farmers page search/filter broken (only filters visible page)

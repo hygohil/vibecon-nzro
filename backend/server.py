@@ -872,6 +872,46 @@ async def list_activities(request: Request, project_id: Optional[str] = None, st
     activities = await db.activities.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
     return [ActivityOut(**a) for a in activities]
 
+import random as _random
+
+_SURVEY_OPTIONS = {
+    "main_crop": ["Rice", "Wheat", "Maize", "Cotton", "Pulses", "Millets", "Mixed crops", "Other"],
+    "crops_per_year": ["1", "2", "3 or more"],
+    "crop_residue": ["Burn it", "Remove it", "Mix it into soil", "Leave it as mulch"],
+    "land_preparation": ["Heavy ploughing (3+ times)", "Medium ploughing (1\u20132 times)", "Light tillage", "No tillage"],
+    "fertilizer_level": ["High", "Medium", "Low", "None"],
+    "irrigation_type": ["Flood irrigation", "Sprinkler", "Drip", "Rainfed"],
+    "compost_usage": ["Yes", "No"],
+    "water_management": ["Continuous flooding", "Intermittent (sometimes dry)", "Rainfed", "Not sure"],
+    "participation_agreement": ["I Agree and want to participate", "I Do Not Agree"],
+}
+
+def _generate_random_survey() -> dict:
+    return {k: _random.choice(v) for k, v in _SURVEY_OPTIONS.items()}
+
+@api_router.post("/activities/backfill-survey")
+async def backfill_survey_responses(request: Request):
+    """Backfill survey_responses for all activities that don't have one."""
+    user = await get_current_user(request)
+    user_projects = await db.projects.find({"user_id": user["user_id"]}, {"_id": 0, "project_id": 1}).to_list(1000)
+    project_ids = [p["project_id"] for p in user_projects]
+    query = {
+        "project_id": {"$in": project_ids},
+        "$or": [
+            {"survey_responses": {"$exists": False}},
+            {"survey_responses": None},
+        ]
+    }
+    activities = await db.activities.find(query, {"_id": 0, "activity_id": 1}).to_list(100000)
+    count = 0
+    for a in activities:
+        await db.activities.update_one(
+            {"activity_id": a["activity_id"]},
+            {"$set": {"survey_responses": _generate_random_survey()}}
+        )
+        count += 1
+    return {"backfilled": count}
+
 @api_router.put("/activities/{activity_id}/verify")
 async def verify_activity(activity_id: str, action: VerificationAction, request: Request):
     _ = await get_current_user(request)  # Authentication check

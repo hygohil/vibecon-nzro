@@ -293,14 +293,14 @@ export default function VerificationPage() {
               {selectedActivity.survey_responses && Object.keys(selectedActivity.survey_responses).length > 0 && (
                 <div className="p-4 bg-[#F0F8F0] rounded-lg border border-[#1A4D2E]/10">
                   <p className="text-xs font-semibold text-[#1A4D2E] mb-3 uppercase tracking-wide">Survey Responses</p>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {SURVEY_QUESTIONS.map(q => {
                       const answer = selectedActivity.survey_responses[q.id];
                       if (!answer) return null;
                       return (
-                        <div key={q.id} className="flex gap-2 text-xs">
-                          <span className="text-[#6B7280] shrink-0 font-medium">{q.label.split('.')[0]}.</span>
-                          <span className="text-[#1F2937]">{answer}</span>
+                        <div key={q.id} className="text-xs" data-testid={`review-survey-${q.id}`}>
+                          <p className="text-[#6B7280] font-medium mb-0.5">{q.label}</p>
+                          <p className="text-[#1F2937] font-semibold pl-3">{answer}</p>
                         </div>
                       );
                     })}
