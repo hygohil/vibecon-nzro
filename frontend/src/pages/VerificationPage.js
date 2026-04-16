@@ -264,6 +264,78 @@ export default function VerificationPage() {
                 <div><span className="text-[#6B7280]">Est. Payout:</span> <span className="font-mono text-[#B45309]">₹{selectedActivity.estimated_payout}</span></div>
               </div>
 
+              {/* Carbon Credit Estimation Breakdown */}
+              {(() => {
+                const farmer = farmers.find(f => f.farmer_id === selectedActivity.farmer_id);
+                const acres = farmer?.acres || 0;
+                const survey = selectedActivity.survey_responses || {};
+                const VCM_RATE = 3500;
+
+                const hasARR = selectedActivity.lat && selectedActivity.lng && selectedActivity.tree_count > 0;
+                const hasRice = survey.water_management && survey.water_management !== 'Not sure';
+                const hasALS = ['main_crop', 'crop_residue', 'land_preparation', 'fertilizer_level', 'compost_usage'].some(k => survey[k]);
+
+                const arrVCM = 5.2;
+                const riceVCM = 2;
+                const alsVCM = 3;
+
+                const rows = [];
+                if (hasARR) rows.push({ method: 'ARR', full: 'Afforestation, Reforestation & Revegetation', vcm: arrVCM, total: acres * arrVCM, revenue: acres * arrVCM * VCM_RATE, basis: 'Location + Trees' });
+                if (hasRice) rows.push({ method: 'Rice Methane', full: 'Rice Cultivation Methane Reduction', vcm: riceVCM, total: acres * riceVCM, revenue: acres * riceVCM * VCM_RATE, basis: `Water: ${survey.water_management}` });
+                if (hasALS) rows.push({ method: 'ALS', full: 'Improved Agricultural Land Management', vcm: alsVCM, total: acres * alsVCM, revenue: acres * alsVCM * VCM_RATE, basis: 'Farm practices' });
+
+                if (rows.length === 0) return null;
+
+                const grandVCM = rows.reduce((s, r) => s + r.total, 0);
+                const grandRevenue = rows.reduce((s, r) => s + r.revenue, 0);
+
+                return (
+                  <div className="rounded-lg border border-[#1A4D2E]/15 overflow-hidden" data-testid="credit-breakdown-table">
+                    <div className="bg-[#1A4D2E] px-4 py-2.5 flex items-center justify-between">
+                      <p className="text-xs font-semibold text-white uppercase tracking-wide">Carbon Credit Estimation Breakdown</p>
+                      <span className="text-[10px] text-white/70 font-mono">Farm: {acres} acre{acres !== 1 ? 's' : ''} | Rate: ₹{VCM_RATE.toLocaleString('en-IN')}/VCM</span>
+                    </div>
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="bg-[#F0F8F0] text-[#1A4D2E]">
+                          <th className="text-left px-4 py-2 font-semibold">Methodology</th>
+                          <th className="text-center px-2 py-2 font-semibold">VCM/Acre</th>
+                          <th className="text-center px-2 py-2 font-semibold">Est. VCM</th>
+                          <th className="text-right px-4 py-2 font-semibold">Est. Revenue (₹)</th>
+                          <th className="text-right px-4 py-2 font-semibold">Basis</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {rows.map((r, i) => (
+                          <tr key={r.method} className={i % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'}>
+                            <td className="px-4 py-2.5">
+                              <span className="font-semibold text-[#1F2937]">{r.method}</span>
+                              <span className="block text-[10px] text-[#6B7280]">{r.full}</span>
+                            </td>
+                            <td className="text-center px-2 py-2.5 font-mono text-[#1F2937]">{r.vcm}</td>
+                            <td className="text-center px-2 py-2.5 font-mono font-semibold text-[#1A4D2E]">{r.total.toFixed(1)}</td>
+                            <td className="text-right px-4 py-2.5 font-mono font-semibold text-[#B45309]">₹{r.revenue.toLocaleString('en-IN')}</td>
+                            <td className="text-right px-4 py-2.5 text-[#6B7280]">{r.basis}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                      <tfoot>
+                        <tr className="border-t-2 border-[#1A4D2E]/20 bg-[#F0F8F0]">
+                          <td className="px-4 py-2.5 font-bold text-[#1F2937]">Total Estimated</td>
+                          <td className="text-center px-2 py-2.5">—</td>
+                          <td className="text-center px-2 py-2.5 font-mono font-bold text-[#1A4D2E]">{grandVCM.toFixed(1)}</td>
+                          <td className="text-right px-4 py-2.5 font-mono font-bold text-[#B45309]">₹{grandRevenue.toLocaleString('en-IN')}</td>
+                          <td className="text-right px-4 py-2.5">—</td>
+                        </tr>
+                      </tfoot>
+                    </table>
+                    <div className="px-4 py-2 bg-amber-50/60 text-[10px] text-amber-700 border-t border-amber-200/50">
+                      Calculation: Acres × VCM/Acre × ₹{VCM_RATE.toLocaleString('en-IN')}/VCM. Values are estimates subject to verification.
+                    </div>
+                  </div>
+                );
+              })()}
+
               {/* Location */}
               {selectedActivity.lat && selectedActivity.lng && (
                 <div className="p-3 bg-gray-50 rounded-lg">
