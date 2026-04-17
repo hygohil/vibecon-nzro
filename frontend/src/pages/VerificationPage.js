@@ -224,6 +224,7 @@ export default function VerificationPage() {
                     </div>
                     <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#6B7280]">
                       <span className="flex items-center gap-1"><TreePine className="w-3 h-3" /> {activity.tree_count} {activity.species}</span>
+                      <span>Acres: {(farmers.find(f => f.farmer_id === activity.farmer_id)?.acres || '—')}</span>
                       <span>Planted: {activity.planted_date}</span>
                       {activity.lat && activity.lng && (
                         <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {activity.lat.toFixed(4)}, {activity.lng.toFixed(4)}</span>
