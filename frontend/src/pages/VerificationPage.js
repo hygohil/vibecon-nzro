@@ -263,6 +263,7 @@ export default function VerificationPage() {
                 <div><span className="text-[#6B7280]">Project:</span> <span className="font-medium">{selectedActivity.project_name}</span></div>
                 <div><span className="text-[#6B7280]">Activity ID:</span> <span className="font-mono text-xs">{selectedActivity.activity_id}</span></div>
                 <div><span className="text-[#6B7280]">Trees:</span> <span className="font-bold text-[#1A4D2E]">{selectedActivity.tree_count} {selectedActivity.species}</span></div>
+                <div><span className="text-[#6B7280]">Acres:</span> <span className="font-medium">{farmers.find(f => f.farmer_id === selectedActivity.farmer_id)?.acres || '—'}</span></div>
                 <div><span className="text-[#6B7280]">Planted:</span> <span>{selectedActivity.planted_date}</span></div>
                 <div><span className="text-[#6B7280]">Est. Credits:</span> <span className="font-mono text-[#1A4D2E]">{selectedActivity.estimated_credits?.toFixed(4)} tCO2e</span></div>
                 <div><span className="text-[#6B7280]">Est. Payout:</span> <span className="font-mono text-[#B45309]">₹{selectedActivity.estimated_payout}</span></div>
