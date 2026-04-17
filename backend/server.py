@@ -147,6 +147,7 @@ class ActivityOut(BaseModel):
     planted_date: str
     lat: Optional[float] = None
     lng: Optional[float] = None
+    farm_boundary_km: Optional[float] = None
     photo_urls: List[str] = []
     notes: Optional[str] = ""
     status: str = "pending"

@@ -228,6 +228,9 @@ export default function VerificationPage() {
                       {activity.lat && activity.lng && (
                         <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {activity.lat.toFixed(4)}, {activity.lng.toFixed(4)}</span>
                       )}
+                      {activity.farm_boundary_km && (
+                        <span className="flex items-center gap-1">Boundary: {activity.farm_boundary_km} km</span>
+                      )}
                       <span className="flex items-center gap-1"><ImageIcon className="w-3 h-3" /> {activity.photo_urls?.length || 0} photos</span>
                     </div>
                     <div className="flex gap-4 mt-2">
@@ -331,19 +334,29 @@ export default function VerificationPage() {
                 );
               })()}
 
-              {/* Location */}
+              {/* Location & Farm Boundary */}
               {selectedActivity.lat && selectedActivity.lng && (
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-xs font-medium text-[#6B7280] mb-1">Location Evidence</p>
-                  <p className="text-sm font-mono">{selectedActivity.lat.toFixed(6)}, {selectedActivity.lng.toFixed(6)}</p>
-                  <a href={`https://www.google.com/maps?q=${selectedActivity.lat},${selectedActivity.lng}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#1A4D2E] underline mt-1 inline-block" data-testid="view-on-map-link">View on Google Maps</a>
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-xs font-medium text-[#6B7280] mb-1">GPS Location</p>
+                      <p className="text-sm font-mono">{selectedActivity.lat.toFixed(6)}, {selectedActivity.lng.toFixed(6)}</p>
+                      <a href={`https://www.google.com/maps?q=${selectedActivity.lat},${selectedActivity.lng}`} target="_blank" rel="noopener noreferrer" className="text-xs text-[#1A4D2E] underline mt-1 inline-block" data-testid="view-on-map-link">View on Google Maps</a>
+                    </div>
+                    {selectedActivity.farm_boundary_km && (
+                      <div className="text-right">
+                        <p className="text-xs font-medium text-[#6B7280] mb-1">Farm Boundary Length</p>
+                        <p className="text-sm font-mono font-semibold text-[#1F2937]">{selectedActivity.farm_boundary_km} km</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
               {/* Photos */}
               {selectedActivity.photo_urls?.length > 0 && (
                 <div>
-                  <p className="text-xs font-medium text-[#6B7280] mb-2">Photo Evidence</p>
+                  <p className="text-xs font-medium text-[#6B7280] mb-2">Evidence Photos</p>
                   <div className="grid grid-cols-2 gap-3">
                     {selectedActivity.photo_urls.map((url, i) => (
                       url && (
