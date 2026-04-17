@@ -281,8 +281,8 @@ export default function VerificationPage() {
 
                 const weights = [];
                 if (hasARR) weights.push({ method: 'ARR', full: 'Afforestation, Reforestation & Revegetation', w: 5.2, basis: 'Location + Trees' });
-                if (hasRice) weights.push({ method: 'Rice Methane', full: 'Rice Cultivation Methane Reduction', w: 2, basis: `Water: ${survey.water_management}` });
-                if (hasALS) weights.push({ method: 'ALS', full: 'Improved Agricultural Land Management', w: 3, basis: 'Farm practices' });
+                if (hasRice) weights.push({ method: 'RME', full: 'Rice Methane Emissions', w: 2, basis: `Water: ${survey.water_management}` });
+                if (hasALS) weights.push({ method: 'SALM', full: 'Sustainable Agricultural Land Management', w: 3, basis: 'Farm practices' });
 
                 if (weights.length === 0) return null;
 
